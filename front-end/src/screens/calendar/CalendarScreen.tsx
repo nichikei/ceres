@@ -38,7 +38,7 @@ export default function CalendarScreen() {
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [tempTime, setTempTime] = useState(new Date());
 
-    // Load events
+    // Load events from storage on mount and when screen focuses
     useFocusEffect(
         React.useCallback(() => {
             loadEvents();
@@ -146,22 +146,110 @@ export default function CalendarScreen() {
         );
     };
 
+    const renderCalendarGrid = () => {
+        const weekDays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+
+        // Calculate first day offset
+        const firstDayOfMonth = monthStart.getDay();
+        const offset = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+
+        // Add empty cells for offset
+        const gridCells = Array(offset).fill(null);
+
+        return (
+            <View style={styles.calendarGrid}>
+                {/* Week day headers */}
+                <View style={styles.weekDaysRow}>
+                    {weekDays.map((day, index) => (
+                        <View key={index} style={styles.weekDayCell}>
+                            <Text style={styles.weekDayText}>{day}</Text>
+                        </View>
+                    ))}
+                </View>
+
+                {/* Calendar days */}
+                <View style={styles.daysGrid}>
+                    {gridCells.map((_, index) => (
+                        <View key={`empty-${index}`} style={styles.dayCell} />
+                    ))}
+
+                    {calendarDays.map((day, index) => {
+                        const dayEvents = getEventsForDate(day);
+                        const isSelected = isSameDay(day, selectedDate);
+                        const isCurrentDay = isToday(day);
+                        const isCurrentMonth = isSameMonth(day, currentDate);
+
+                        return (
+                            <TouchableOpacity
+                                key={index}
+                                style={[
+                                    styles.dayCell,
+                                    isSelected && styles.dayCellSelected,
+                                    isCurrentDay && !isSelected && styles.dayCellToday,
+                                ]}
+                                onPress={() => setSelectedDate(day)}
+                            >
+                                <Text
+                                    style={[
+                                        styles.dayText,
+                                        !isCurrentMonth && styles.dayTextOtherMonth,
+                                        isSelected && styles.dayTextSelected,
+                                        isCurrentDay && !isSelected && styles.dayTextToday,
+                                    ]}
+                                >
+                                    {format(day, 'd')}
+                                </Text>
+
+                                {dayEvents.length > 0 && (
+                                    <View style={styles.eventDots}>
+                                        {dayEvents.slice(0, 3).map((event, i) => (
+                                            <View
+                                                key={i}
+                                                style={[
+                                                    styles.eventDot,
+                                                    { backgroundColor: getCategoryColor(event.category) },
+                                                ]}
+                                            />
+                                        ))}
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
+            </View>
+        );
+    };
+
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
+            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ion icons name="arrow-back" size={24} color="#fff" />
+                    <Ionicons name="arrow-back" size={24} color="#fff" />
                 </TouchableOpacity>
                 <Text style={styles.title}>Lịch sức khỏe</Text>
                 <View style={styles.headerRight} />
             </View>
 
-            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {/* Month Navigation */}
+            <View style={styles.monthNav}>
+                <TouchableOpacity onPress={handlePreviousMonth} style={styles.monthButton}>
+                    <Ionicons name="chevron-back" size={24} color={colors.text} />
+                </TouchableOpacity>
                 <Text style={styles.monthTitle}>
                     {format(currentDate, 'MMMM yyyy', { locale: vi })}
                 </Text>
+                <TouchableOpacity onPress={handleNextMonth} style={styles.monthButton}>
+                    <Ionicons name="chevron-forward" size={24} color={colors.text} />
+                </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+                {/* Calendar Grid */}
+                {renderCalendarGrid()}
             </ScrollView>
         </View>
     );
@@ -198,11 +286,91 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
     },
+    monthNav: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.md,
+        backgroundColor: colors.surface,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
+    },
+    monthButton: {
+        padding: spacing.xs,
+    },
     monthTitle: {
         fontSize: 16,
         fontWeight: '600',
         color: colors.text,
         textTransform: 'capitalize',
-        padding: spacing.md,
+    },
+    // Calendar Grid
+    calendarGrid: {
+        backgroundColor: colors.surface,
+        marginTop: spacing.sm,
+        paddingBottom: spacing.md,
+    },
+    weekDaysRow: {
+        flexDirection: 'row',
+        paddingHorizontal: spacing.sm,
+        paddingTop: spacing.sm,
+    },
+    weekDayCell: {
+        flex: 1,
+        alignItems: 'center',
+        paddingVertical: spacing.sm,
+    },
+    weekDayText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: colors.textSecondary,
+    },
+    daysGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        paddingHorizontal: spacing.sm,
+    },
+    dayCell: {
+        width: '14.28%',
+        aspectRatio: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: spacing.xs,
+    },
+    dayCellSelected: {
+        backgroundColor: colors.primary,
+        borderRadius: borderRadius.md,
+    },
+    dayCellToday: {
+        backgroundColor: colors.primary + '20',
+        borderRadius: borderRadius.md,
+    },
+    dayText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: colors.text,
+    },
+    dayTextOtherMonth: {
+        color: colors.textSecondary,
+        opacity: 0.4,
+    },
+    dayTextSelected: {
+        color: '#fff',
+        fontWeight: '700',
+    },
+    dayTextToday: {
+        color: colors.primary,
+        fontWeight: '700',
+    },
+    eventDots: {
+        flexDirection: 'row',
+        gap: 2,
+        marginTop: 2,
+    },
+    eventDot: {
+        width: 4,
+        height: 4,
+        borderRadius: 2,
     },
 });
