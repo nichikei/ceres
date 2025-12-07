@@ -1,4 +1,5 @@
-// src/components/StatCard.tsx
+//  src/components/StatCard.tsx
+// Reusable statistics card component for displaying metrics on dashboard
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { colors, spacing, borderRadius } from '../context/ThemeContext';

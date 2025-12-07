@@ -1,8 +1,12 @@
 // src/controllers/calendarController.js
+// Calendar event management controller for health tracking application
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-// Get all calendar events for a user
+/**
+ * Get all calendar events for authenticated user
+ * @route GET /api/calendar/events
+ */
 export const getEvents = async (req, res) => {
     try {
         const userId = req.user.id;
