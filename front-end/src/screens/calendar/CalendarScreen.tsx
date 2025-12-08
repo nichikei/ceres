@@ -230,7 +230,7 @@ export default function CalendarScreen() {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#fff" />
                 </TouchableOpacity>
-                <Text style={styles.title}>Lịch sức khỏe</Text>
+                <Text style={styles.title}>📅 Lịch sức khỏe</Text>
                 <View style={styles.headerRight} />
             </View>
 
