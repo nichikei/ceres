@@ -40,6 +40,20 @@ const styles = StyleSheet.create({
     iconContainer: {
         width: 44,
         height: 44,
+        borderRadius: borderRadius.md,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: spacing.sm,
+    },
+    icon: {
+        fontSize: 28,
+    },
+    label: {
+        fontSize: 13,
+        color: colors.textSecondary,
+        marginBottom: 2,
+    },
+    value: {
         fontSize: 20,
         fontWeight: '700',
         color: colors.text,
