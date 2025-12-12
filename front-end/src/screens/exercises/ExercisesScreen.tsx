@@ -4,7 +4,7 @@
                     value={sets}
                     onChangeText={setSets}
                     keyboardType="numeric"
-                    placeholder="3"
+                    placeholder="Ví dụ: 3"
                   />
                 </View>
                 <View style={styles.halfInput}>
@@ -14,7 +14,7 @@
                     value={reps}
                     onChangeText={setReps}
                     keyboardType="numeric"
-                    placeholder="12"
+                    placeholder="Ví dụ: 12"
                   />
                 </View>
               </View>
@@ -25,7 +25,7 @@
                 value={weight}
                 onChangeText={setWeight}
                 keyboardType="decimal-pad"
-                placeholder="20"
+                placeholder="Ví dụ: 20kg"
               />
 
               <Text style={styles.inputLabel}>Ghi chú</Text>
