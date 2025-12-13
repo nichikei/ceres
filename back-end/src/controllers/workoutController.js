@@ -1,9 +1,18 @@
+/**
+ * Workout Controller - Module 4: Exercise & Workout Tracking
+ * Handles all workout log operations including CRUD operations
+ * Supports filtering by date range and user-specific data
+ */
 import prisma from '../config/database.js';
 import { mapWorkoutLog, parseDate, handlePrismaError } from '../utils/helpers.js';
 import { config } from '../config/index.js';
 
 /**
- * Get workout logs
+ * Get workout logs with optional date filtering
+ * @route GET /api/workout-logs
+ * @query {string} start - Start date (optional)
+ * @query {string} end - End date (optional)
+ * @returns {Array} List of workout logs
  */
 export const getWorkoutLogs = async (req, res) => {
   try {
@@ -45,12 +54,18 @@ export const getWorkoutLogs = async (req, res) => {
 };
 
 /**
- * Create workout log
+ * Create a new workout log entry
+ * @route POST /api/workout-logs
+ * @body {string} exerciseName - Name of the exercise (required)
+ * @body {number} durationMinutes - Duration in minutes (required)
+ * @body {number} caloriesBurnedEstimated - Estimated calories burned (optional)
+ * @returns {Object} Created workout log
  */
 export const createWorkoutLog = async (req, res) => {
   try {
     const userId = req.user?.id || req.body.userId || config.defaultUserId;
 
+    // Validate user authentication
     if (!userId) {
       return res.status(401).json({ error: 'User ID is required' });
     }
@@ -102,17 +117,23 @@ export const createWorkoutLog = async (req, res) => {
 };
 
 /**
- * Update workout log
+ * Update an existing workout log
+ * @route PUT /api/workout-logs/:id
+ * @param {number} id - Workout log ID
+ * @body {Object} - Fields to update (exerciseName, durationMinutes, etc.)
+ * @returns {Object} Updated workout log
  */
 export const updateWorkoutLog = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id || req.body.userId || config.defaultUserId;
 
+    // Validate user authentication
     if (!userId) {
       return res.status(401).json({ error: 'User ID is required' });
     }
 
+    // Validate workout log ID
     const logId = parseInt(id);
     if (isNaN(logId)) {
       return res.status(400).json({ error: 'Invalid workout log ID' });
