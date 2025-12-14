@@ -23,15 +23,16 @@ export const getWorkoutLogs = async (req, res) => {
 export const createWorkoutLog = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { exerciseName, durationMinutes, caloriesBurnedEstimated } = req.body;
+    const { exerciseName, durationMinutes, caloriesBurnedEstimated, completedAt } = req.body;
 
     const created = await prisma.workoutLog.create({
       data: {
         userId,
-        completedAt: new Date(),
+        completedAt: completedAt ? new Date(completedAt) : new Date(),
         exerciseName: exerciseName || 'Workout',
         durationMinutes: Number(durationMinutes) || 0,
         caloriesBurnedEstimated: Number(caloriesBurnedEstimated) || 0,
+        isAiSuggested: false,
       },
     });
 
@@ -39,5 +40,45 @@ export const createWorkoutLog = async (req, res) => {
   } catch (error) {
     console.error('Lỗi tạo workout:', error);
     res.status(500).json({ error: 'Không thể tạo workout' });
+  }
+};
+
+// Sửa workout log
+export const updateWorkoutLog = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const id = Number(req.params.id);
+    const { exerciseName, durationMinutes, caloriesBurnedEstimated } = req.body;
+
+    const updated = await prisma.workoutLog.update({
+      where: { id, userId },
+      data: {
+        exerciseName,
+        durationMinutes: durationMinutes ? Number(durationMinutes) : undefined,
+        caloriesBurnedEstimated: caloriesBurnedEstimated ? Number(caloriesBurnedEstimated) : undefined,
+      },
+    });
+
+    res.json(updated);
+  } catch (error) {
+    console.error('Lỗi sửa workout:', error);
+    res.status(500).json({ error: 'Không thể sửa workout' });
+  }
+};
+
+// Xóa workout log
+export const deleteWorkoutLog = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const id = Number(req.params.id);
+
+    await prisma.workoutLog.delete({ 
+      where: { id, userId } 
+    });
+    
+    res.status(204).send();
+  } catch (error) {
+    console.error('Lỗi xóa workout:', error);
+    res.status(500).json({ error: 'Không thể xóa workout' });
   }
 };
