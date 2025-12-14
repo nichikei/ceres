@@ -1,3 +1,8 @@
+/**
+ * Workout Log Routes - Module 4: Exercise & Workout Tracking
+ * Defines all API endpoints for workout log management
+ * Connects frontend requests to controller functions
+ */
 import express from 'express';
 import {
   getWorkoutLogs,
@@ -12,15 +17,22 @@ const router = express.Router();
 
 /**
  * @route   GET /api/workout-logs
- * @desc    Get all workout logs for a user (with optional date range)
- * @query   userId, start, end
+ * @desc    Get all workout logs for the authenticated user
+ * @query   {string} start - Start date filter (optional, format: YYYY-MM-DD)
+ * @query   {string} end - End date filter (optional, format: YYYY-MM-DD)
+ * @access  Private (requires authentication)
  */
 router.get('/', getWorkoutLogs);
 
 /**
  * @route   POST /api/workout-logs
- * @desc    Create a new workout log
- * @body    userId, exerciseName, durationMinutes, caloriesBurnedEstimated, completedAt, isAiSuggested
+ * @desc    Create a new workout log entry
+ * @body    {string} exerciseName - Name of the exercise (required)
+ * @body    {number} durationMinutes - Duration in minutes (required)
+ * @body    {number} caloriesBurnedEstimated - Estimated calories burned (optional)
+ * @body    {string} completedAt - Completion timestamp (optional, defaults to now)
+ * @body    {boolean} isAiSuggested - Whether suggested by AI (optional, default: false)
+ * @access  Private (requires authentication)
  */
 router.post('/', createWorkoutLog);
 
