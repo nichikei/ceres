@@ -21,14 +21,12 @@ export const recognizeFood = async (req, res) => {
     const prompt = `BẠN LÀ CHUYÊN GIA DINH DƯỠNG CHUYÊN NGHIỆP. Phân tích ảnh và tính toán dinh dưỡng CHÍNH XÁC dựa trên khối lượng THỰC TẾ.
 
 ⚠️ QUY TẮC QUAN TRỌNG:
-- QUAN SÁT KỸ LƯỠNG khối lượng và kích thước món ăn
-- TUYỆT ĐỐI không ước tính mặc định 400-450 kcal
-- Phân loại món ăn theo kích thước thực tế
-- Món NHỎ (vài muỗng/miếng): 50-200 kcal
-- Món VỪA (1 tô/đĩa nhỏ): 200-400 kcal  
-- Món LỚN (1 tô to/đĩa to): 400-800 kcal
-- Món RẤT LỚN (nhiều phần): 800+ kcal
-- Xem xét tỷ lệ với đồ vật xung quanh
+- QUAN SÁT KỸ KHỐI LƯỢNG/KÍCH THƯỚC món ăn trong ảnh
+- KHÔNG được ước tính mặc định 400-450 kcal cho mọi món
+- Món NHỎ (vài muỗng/miếng) = 50-200 kcal
+- Món VỪA (1 tô/đĩa nhỏ) = 200-400 kcal  
+- Món LỚN (1 tô to/đĩa to) = 400-800 kcal
+- Món RẤT LỚN (nhiều phần) = 800+ kcal
 
 📏 TIÊU CHUẨN ƯỚC LƯỢNG (tham khảo từ thực tế):
 - Muỗng cơm: 30-40g ≈ 40-50 kcal
