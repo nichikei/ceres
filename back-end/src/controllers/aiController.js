@@ -28,19 +28,19 @@ export const recognizeFood = async (req, res) => {
 - Món LỚN (1 tô to/đĩa to) = 400-800 kcal
 - Món RẤT LỚN (nhiều phần) = 800+ kcal
 
-📏 TIÊU CHUẨN ƯỚC LƯỢNG (tham khảo từ thực tế):
-- Muỗng cơm: 30-40g ≈ 40-50 kcal
-- Cốc nhỏ (200ml): nước ép = 80-100 kcal, sữa tươi = 120 kcal
-- Bát cơm nhỏ: 150g ≈ 195 kcal
-- Bát cơm to: 250g ≈ 325 kcal
-- Đĩa cơm vừa: 200g ≈ 260 kcal
-- Tô phở/bún nhỏ: 400g ≈ 350-450 kcal
-- Tô phở/bún to: 600g ≈ 500-650 kcal
-- Mì gói instant: 75-85g ≈ 320-380 kcal (tính khô)
-- Gà rán (đùi): 100g ≈ 250 kcal
-- Miếng pizza (1/8 cái): 150g ≈ 300 kcal
-- Hamburger tiêu chuẩn: 200g ≈ 550 kcal
-- Salad rau nhỏ: 150g ≈ 80-150 kcal
+📏 CHUẨN ƯỚC LƯỢNG (so sánh với bàn tay/vật dụng):
+- 1 muỗng cơm: ~30-40g = 40-50 kcal
+- 1 cốc nhỏ (200ml): nước trái cây = 80-100 kcal, sữa = 120 kcal
+- 1 bát cơm nhỏ: 150g = 195 kcal
+- 1 bát cơm to: 250g = 325 kcal
+- 1 đĩa cơm trung: 200g = 260 kcal
+- 1 tô phở/bún nhỏ: 400g = 350-450 kcal
+- 1 tô phở/bún to: 600g = 500-650 kcal
+- 1 gói mì instant: 75-85g = 320-380 kcal (chưa nấu)
+- 1 miếng gà rán (đùi): 100g = 250 kcal
+- 1 miếng pizza (1/8): 150g = 300 kcal
+- 1 hamburger: 200g = 550 kcal
+- 1 salad nhỏ: 150g = 80-150 kcal
 
 📊 DATABASE DINH DƯỠNG (trên 100g):
 🍚 CARBS:
