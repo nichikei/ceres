@@ -1,6 +1,18 @@
 // src/services/api.ts
 import { http } from './http';
 
+// API configuration constants
+const API_TIMEOUT = 10000; // 10 seconds
+const MAX_RETRIES = 3;
+
+// API response wrapper interface
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
 export interface User {
   user_id: number;
   email: string;
@@ -22,6 +34,8 @@ export interface User {
     gym: boolean;
     [key: string]: boolean;
   } | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface BodyMeasurement {
@@ -136,14 +150,39 @@ const normalizeUserUpdatePayload = (data: UserUpdatePayload) => {
   return payload;
 };
 
+// Error handling wrapper
+const handleApiError = (error: any, context: string) => {
+  console.error(`API Error in ${context}:`, error);
+  
+  if (error.response) {
+    // Server responded with error status
+    const message = error.response.data?.message || error.response.data?.error || 'Đã xảy ra lỗi';
+    throw new Error(message);
+  } else if (error.request) {
+    // Request made but no response
+    throw new Error('Không thể kết nối đến server');
+  } else {
+    // Something else happened
+    throw new Error(error.message || 'Đã xảy ra lỗi không xác định');
+  }
+};
+
 export const api = {
-  // Users
-  getUsers: (): Promise<User[]> => http.request('/api/users'),
-  getCurrentUser: (): Promise<User> => http.request('/api/users/me'),
+  // Users - with error handling
+  getUsers: (): Promise<User[]> => 
+    http.request('/api/users')
+      .catch(err => handleApiError(err, 'getUsers')),
+  
+  getCurrentUser: (): Promise<User> => 
+    http.request('/api/users/me')
+      .catch(err => handleApiError(err, 'getCurrentUser')),
+  
   updateCurrentUser: (data: UserUpdatePayload): Promise<User> =>
     http.request('/api/users/me', {
       method: 'PUT',
       json: normalizeUserUpdatePayload(data),
+    })
+      .catch(err => handleApiError(err, 'updateCurrentUser')),
     }),
 
   // Food Log
