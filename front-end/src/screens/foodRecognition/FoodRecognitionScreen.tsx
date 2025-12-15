@@ -28,7 +28,6 @@ export default function FoodRecognitionScreen() {
   const [saving, setSaving] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [recognitionError, setRecognitionError] = useState<string | null>(null);
   const [aiResult, setAiResult] = useState<{
     foodName: string;
     calories: number;
@@ -43,13 +42,12 @@ export default function FoodRecognitionScreen() {
   // Reset state khi screen được focus
   useFocusEffect(
     React.useCallback(() => {
-      // Reset toàn bộ state khi vào màn hình
+      // Reset tất cả state khi vào màn hình
       setAnalyzing(false);
       setSaving(false);
       setSelectedImage(null);
       setShowConfirmModal(false);
       setAiResult(null);
-      setRecognitionError(null);
       setMealType('Breakfast');
       hasLaunchedCamera.current = false;
 
