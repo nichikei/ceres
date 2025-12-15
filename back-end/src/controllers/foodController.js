@@ -32,7 +32,7 @@ export const getFoodLogs = async (req, res) => {
     const logs = await prisma.foodLog.findMany({
       where,
       orderBy: { eatenAt: 'desc' },
-      take: 100, // limit results
+      take: 50,
     });
 
     res.json(logs.map(mapFoodLog));
