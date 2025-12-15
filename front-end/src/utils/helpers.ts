@@ -1,42 +1,65 @@
 // src/utils/helpers.ts
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
+import { vi } from 'date-fns/locale';
 
 /**
- * Format date to display string
+ * Format date to display string with error handling
  */
 export const formatDate = (date: string | Date, formatString: string = 'MMM d, yyyy'): string => {
-  const dateObj = typeof date === 'string' ? parseISO(date) : date;
-  return format(dateObj, formatString);
+  try {
+    const dateObj = typeof date === 'string' ? parseISO(date) : date;
+    return format(dateObj, formatString, { locale: vi });
+  } catch (error) {
+    console.error('Date formatting error:', error);
+    return 'Invalid date';
+  }
 };
 
 /**
- * Format date relative to today
+ * Format date relative to today (Việt hóa)
  */
 export const formatRelativeDate = (date: string | Date): string => {
-  const dateObj = typeof date === 'string' ? parseISO(date) : date;
+  try {
+    const dateObj = typeof date === 'string' ? parseISO(date) : date;
 
-  if (isToday(dateObj)) return 'Today';
-  if (isYesterday(dateObj)) return 'Yesterday';
-  return format(dateObj, 'MMM d');
+    if (isToday(dateObj)) return 'Hôm nay';
+    if (isYesterday(dateObj)) return 'Hôm qua';
+    return format(dateObj, 'd MMM', { locale: vi });
+  } catch (error) {
+    console.error('Relative date formatting error:', error);
+    return 'Invalid date';
+  }
 };
 
 /**
- * Calculate BMI
+ * Calculate BMI with validation
  */
 export const calculateBMI = (weightKg: number, heightCm: number): number => {
-  if (!weightKg || !heightCm) return 0;
+  if (!weightKg || !heightCm || weightKg <= 0 || heightCm <= 0) {
+    return 0;
+  }
+  
   const heightM = heightCm / 100;
-  return Number((weightKg / (heightM * heightM)).toFixed(1));
+  const bmi = weightKg / (heightM * heightM);
+  
+  // Check for unrealistic values
+  if (bmi < 10 || bmi > 60) {
+    console.warn('BMI value seems unrealistic:', bmi);
+  }
+  
+  return Number(bmi.toFixed(1));
 };
 
 /**
- * Get BMI category
+ * Get BMI category (Việt hóa)
  */
 export const getBMICategory = (bmi: number): { label: string; color: string } => {
-  if (bmi < 18.5) return { label: 'Underweight', color: '#60A5FA' };
-  if (bmi < 25) return { label: 'Normal', color: '#10B981' };
-  if (bmi < 30) return { label: 'Overweight', color: '#FBBF24' };
-  return { label: 'Obese', color: '#EF4444' };
+  if (bmi === 0) return { label: 'Không xác định', color: '#9CA3AF' };
+  if (bmi < 18.5) return { label: 'Gầy', color: '#60A5FA' };
+  if (bmi < 23) return { label: 'Bình thường', color: '#10B981' };
+  if (bmi < 25) return { label: 'Thừa cân nhẹ', color: '#FBBF24' };
+  if (bmi < 30) return { label: 'Thừa cân', color: '#F59E0B' };
+  return { label: 'Béo phì', color: '#EF4444' };
 };
 
 /**
