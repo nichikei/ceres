@@ -51,9 +51,7 @@ export interface UserProfileContext {
 }
 
 /**
- * Nhận diện thức ăn từ ảnh base64
- * @param base64Image - Ảnh được mã hóa base64
- * @returns Promise chứa thông tin món ăn đã nhận diện
+ * Nhận diện đồ ăn từ ảnh base64
  */
 export const recognizeFoodFromImage = async (
   base64Image: string
@@ -66,10 +64,6 @@ export const recognizeFoodFromImage = async (
         json: { base64Image },
       }
     );
-    
-    if (!response.success || !response.data) {
-      throw new Error('Không nhận được kết quả từ API');
-    }
     
     return response.data;
   } catch (error: any) {
