@@ -93,16 +93,19 @@ model FoodLog {
   createdAt            DateTime @default(now())
 }
 
+// WorkoutLog Model - Module 4: Exercise & Workout Tracking
+// Stores all exercise and workout activity logs for users
+// Tracks duration, calories burned, and exercise details
 model WorkoutLog {
   id                       Int      @id @default(autoincrement())
   userId                   Int
   user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  completedAt              DateTime
-  exerciseName             String
-  durationMinutes          Int
-  caloriesBurnedEstimated  Int
-  isAiSuggested            Boolean  @default(false)
-  createdAt                DateTime @default(now())
+  completedAt              DateTime // Timestamp when workout was completed
+  exerciseName             String   // Name of the exercise (e.g., "Chạy bộ", "HIIT", "Yoga")
+  durationMinutes          Int      // Duration in minutes
+  caloriesBurnedEstimated  Int      // Estimated calories burned during workout
+  isAiSuggested            Boolean  @default(false) // Whether workout was suggested by AI
+  createdAt                DateTime @default(now()) // Record creation timestamp
 }
 
 model AiSuggestion {
