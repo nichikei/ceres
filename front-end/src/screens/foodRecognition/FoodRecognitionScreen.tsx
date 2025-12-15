@@ -107,14 +107,8 @@ export default function FoodRecognitionScreen() {
 
   const analyzeImage = async (imageUri: string) => {
     setAnalyzing(true);
-    setRecognitionError(null);
     try {
       const result = await api.analyzeFoodImage(imageUri);
-      
-      // Validate kết quả từ API
-      if (!result || !result.food_name) {
-        throw new Error('Không nhận diện được món ăn từ ảnh');
-      }
       
       setAiResult({
         foodName: result.food_name || 'Món ăn không xác định',
@@ -131,7 +125,6 @@ export default function FoodRecognitionScreen() {
       
       // Hiển thị thông báo lỗi cụ thể từ API
       const errorMessage = error.message || 'Không thể phân tích ảnh. Vui lòng thử lại.';
-      setRecognitionError(errorMessage);
       
       Alert.alert(
         'Lỗi phân tích',
