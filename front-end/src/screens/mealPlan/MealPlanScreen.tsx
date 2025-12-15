@@ -58,7 +58,7 @@ const MealPlanScreen = ({ navigation }: any) => {
 
   const generatePlan = async () => {
     if (!targetCalories || parseInt(targetCalories) < 1000) {
-      showToast('Please enter valid calories (min 1000)', 'error');
+      showToast('Nhập tối thiểu 1000 calo', 'error');
       return;
     }
     
