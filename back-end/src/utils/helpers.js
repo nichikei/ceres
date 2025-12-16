@@ -1,7 +1,5 @@
 /**
- * Map Prisma User model sang định dạng API response
- * @param {Object} user - User object từ Prisma
- * @returns {Object} Formatted user object
+ * Map Prisma User model to API response format
  */
 export const mapUser = (user) => ({
   user_id: user.id,
@@ -23,9 +21,7 @@ export const mapUser = (user) => ({
 });
 
 /**
- * Map Prisma FoodLog model sang định dạng API response
- * @param {Object} log - FoodLog object từ Prisma
- * @returns {Object} Formatted food log object
+ * Map Prisma FoodLog model to API response format
  */
 export const mapFoodLog = (log) => ({
   log_id: log.id,
