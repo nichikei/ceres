@@ -31,20 +31,74 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+
+  // Validation functions
+  const validateName = (name: string): boolean => {
+    if (!name || name.trim().length < 2) {
+      setErrors(prev => ({ ...prev, name: 'Tên phải có ít nhất 2 ký tự' }));
+      return false;
+    }
+    setErrors(prev => ({ ...prev, name: '' }));
+    return true;
+  };
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrors(prev => ({ ...prev, email: 'Email không hợp lệ' }));
+      return false;
+    }
+    setErrors(prev => ({ ...prev, email: '' }));
+    return true;
+  };
+
+  const validatePassword = (password: string): boolean => {
+    if (password.length < 6) {
+      setErrors(prev => ({ ...prev, password: 'Mật khẩu phải có ít nhất 6 ký tự' }));
+      return false;
+    }
+    if (!/(?=.*[a-z])(?=.*[A-Z])/.test(password)) {
+      setErrors(prev => ({ ...prev, password: 'Mật khẩu phải có chữ hoa và chữ thường' }));
+      return false;
+    }
+    setErrors(prev => ({ ...prev, password: '' }));
+    return true;
+  };
+
+  const validateConfirmPassword = (confirmPass: string): boolean => {
+    if (confirmPass !== password) {
+      setErrors(prev => ({ ...prev, confirmPassword: 'Mật khẩu không khớp' }));
+      return false;
+    }
+    setErrors(prev => ({ ...prev, confirmPassword: '' }));
+    return true;
+  };
 
   const handleRegister = async () => {
+    // Clear all errors
+    setErrors({ name: '', email: '', password: '', confirmPassword: '' });
+
+    // Validate all fields
     if (!name || !email || !password || !confirmPassword) {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin');
       return;
     }
 
-    if (password !== confirmPassword) {
-      Alert.alert('Lỗi', 'Mật khẩu không khớp');
-      return;
-    }
+    const isNameValid = validateName(name);
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+    const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
 
-    if (password.length < 6) {
-      Alert.alert('Lỗi', 'Mật khẩu phải ít nhất 6 ký tự');
+    if (!isNameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
+      Alert.alert('Lỗi', 'Vui lòng kiểm tra lại thông tin');
       return;
     }
 
