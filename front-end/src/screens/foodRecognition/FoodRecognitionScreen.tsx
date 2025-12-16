@@ -92,9 +92,9 @@ const FoodRecognitionScreen = ({ navigation }: any) => {
       };
       
       setRecognizedFood(mockResult);
-      showToast(`Recognized: ${mockResult.name}`, 'success');
+      showToast(`Nhận diện: ${mockResult.name}`, 'success');
     } catch (error) {
-      showToast('Failed to recognize food', 'error');
+      showToast('Lỗi nhận diện', 'error');
     } finally {
       setRecognizing(false);
     }
