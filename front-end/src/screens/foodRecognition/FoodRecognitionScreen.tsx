@@ -193,32 +193,10 @@ const FoodRecognitionScreen = ({ navigation }: any) => {
                     </View>
                   </View>
 
-                  <View style={styles.nutritionGrid}>
-                    <View style={styles.nutritionItem}>
-                      <Ionicons name="flame" size={24} color="#FF6B6B" />
-                      <Text style={[styles.nutritionValue, { color: currentTheme.text }]}>
-                        {recognizedFood.calories}
-                      </Text>
-                      <Text style={[styles.nutritionLabel, { color: currentTheme.textSecondary }]}>
-                        Calories
-                      </Text>
-                    </View>
-                    <View style={styles.nutritionItem}>
-                      <Text style={[styles.nutritionValue, { color: currentTheme.text }]}>
-                        {recognizedFood.protein}g
-                      </Text>
-                      <Text style={[styles.nutritionLabel, { color: currentTheme.textSecondary }]}>
-                        Protein
-                      </Text>
-                    </View>
-                    <View style={styles.nutritionItem}>
-                      <Text style={[styles.nutritionValue, { color: currentTheme.text }]}>
-                        {recognizedFood.carbs}g
-                      </Text>
-                      <Text style={[styles.nutritionLabel, { color: currentTheme.textSecondary }]}>
-                        Carbs
-                      </Text>
-                    </View>
+                  <View style={styles.macroRow}>
+                    <Text style={[styles.macroText, { color: currentTheme.text }]}>
+                      🔥 {recognizedFood.calories} cal • P: {recognizedFood.protein}g • C: {recognizedFood.carbs}g
+                    </Text>
                   </View>
                 </View>
 
@@ -398,9 +376,10 @@ const styles = StyleSheet.create({
   },
   macroRow: {
     marginTop: 16,
+    paddingHorizontal: 16,
   },
   macroText: {
-    fontSize: 16,
+    fontSize: 15,
     textAlign: 'center',
   },
   sectionLabel: {
