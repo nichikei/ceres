@@ -23,15 +23,12 @@ export interface Article {
   category: ArticleCategory;
   image: string;
   author: string;
-  authorAvatar?: string;
-  readTime: number; // phút
+  readTime: number; // minutes
   excerpt: string;
   content: string;
   tags: string[];
   isFeatured?: boolean;
   publishedDate: string;
-  likes?: number;
-  views?: number;
 }
 
 const ARTICLES: Article[] = [
