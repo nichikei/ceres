@@ -66,10 +66,6 @@ const MealPlanScreen = ({ navigation }: any) => {
       setLoading(true);
       setModalVisible(false);
       
-      const calories = parseInt(targetCalories);
-      const prompt = `Create a meal plan for ${calories} calories with ${dietType} diet`;
-      
-      // TODO: Call actual AI API
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       const newPlan: MealPlan = {
@@ -221,7 +217,7 @@ const MealPlanScreen = ({ navigation }: any) => {
           <View style={styles.emptyContainer}>
             <Ionicons name="calendar-outline" size={80} color={currentTheme.textSecondary} />
             <Text style={[styles.emptyText, { color: currentTheme.textSecondary }]}>
-              No meal plan yet. Tap Generate to create one.
+              Chưa có kế hoạch. Nhấn Generate.
             </Text>
           </View>
         )}
