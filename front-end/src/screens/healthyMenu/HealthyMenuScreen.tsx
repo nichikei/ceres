@@ -188,7 +188,7 @@ const HealthyMenuScreen = ({ navigation }: any) => {
           <View style={styles.infoItem}>
             <Ionicons name="time" size={16} color={currentTheme.textSecondary} />
             <Text style={[styles.infoText, { color: currentTheme.textSecondary }]}>
-              {recipe.prepTime} min
+              {recipe.prepTime} phút
             </Text>
           </View>
           <View style={styles.infoItem}>
