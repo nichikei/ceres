@@ -223,7 +223,7 @@ const FoodRecognitionScreen = ({ navigation }: any) => {
                 </View>
 
                 <Text style={[styles.sectionLabel, { color: currentTheme.text }]}>
-                  Meal Type
+                  Loại bữa ăn
                 </Text>
                 <View style={styles.mealTypeContainer}>
                   {mealTypes.map((type) => (
