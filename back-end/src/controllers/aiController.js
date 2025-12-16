@@ -283,7 +283,6 @@ export const recognizeFood = async (req, res) => {
         carbs: Math.round(parseFloat(nutritionData.carbs) || 0),
         fat: Math.round(parseFloat(nutritionData.fats || nutritionData.fat) || 0),
         sugar: Math.round(parseFloat(nutritionData.sugar) || 0),
-        confidence: parseFloat(nutritionData.confidence) || 0.8,
       }
     });
 
