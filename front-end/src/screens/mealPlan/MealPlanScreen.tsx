@@ -236,11 +236,11 @@ const MealPlanScreen = ({ navigation }: any) => {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: currentTheme.cardBackground }]}>
             <Text style={[styles.modalTitle, { color: currentTheme.text }]}>
-              Generate Meal Plan
+              Tạo kế hoạch bữa ăn
             </Text>
 
             <Text style={[styles.inputLabel, { color: currentTheme.text }]}>
-              Target Calories
+              Calo mục tiêu
             </Text>
             <TextInput
               style={[styles.input, { 
