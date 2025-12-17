@@ -84,7 +84,7 @@ export const getNutritionStats = async (req, res) => {
       protein: Math.round(totals.protein / days),
       carbs: Math.round(totals.carbs / days),
       fat: Math.round(totals.fat / days),
-      meals: (totals.meals / days).toFixed(1),
+      meals: parseFloat((totals.meals / days).toFixed(1)),
     };
 
     // Calculate meal type distribution
