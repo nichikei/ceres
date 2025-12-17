@@ -124,31 +124,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       const data = await http.request('/api/auth/register', {
         method: 'POST',
-      json: payload,
-      skipAuth: true,
-    });
-    const profile = await mapAuthResponse(data);
-    setUser(profile);
+        json: payload,
+        skipAuth: true,
+      });
+      
+      const profile = await mapAuthResponse(data);
+      
+      if (!profile) {
+        throw new Error('Không thể tạo tài khoản');
+      }
+      
+      setUser(profile);
+      setError(null);
+    } catch (error: any) {
+      setError(error.message || 'Đăng ký thất bại');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const logout = useCallback(async () => {
     try {
+      setLoading(true);
       await http.request('/api/auth/logout', { method: 'POST' });
-    } catch {
-      // Ignore errors
+    } catch (error) {
+      console.warn('Logout request failed:', error);
+      // Continue with logout even if request fails
     } finally {
       await http.clearTokens();
       setUser(null);
+      setError(null);
+      setLoading(false);
     }
   }, []);
 
   const refreshUser = useCallback(async (): Promise<User | null> => {
     try {
+      setError(null);
       const profile = await api.getCurrentUser();
       setUser(profile);
       return profile;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to refresh user:', error);
+      setError(error.message || 'Không thể làm mới thông tin');
       return null;
     }
   }, []);
@@ -159,7 +178,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isLoggedIn: Boolean(user),
       isOnboarded: Boolean(user?.weight_kg && user?.height_cm),
       loading,
+      error,
       login,
+      register,
+      logout,
+      refreshUser,
+      clearError,
+    }),
+    [user, loading, error, login, register, logout, refreshUser, clearError]
+  );
       register,
       logout,
       refreshUser,
