@@ -30,7 +30,6 @@ interface Message {
   timestamp: Date;
   isLoading?: boolean;
   imageUri?: string;
-  isError?: boolean;
   nutritionData?: {
     foodName: string;
     calories: number;
@@ -44,7 +43,6 @@ interface Message {
 interface ChatHistoryItem {
   role: 'user' | 'assistant';
   content: string;
-  timestamp?: Date;
 }
 
 // Typing indicator component
