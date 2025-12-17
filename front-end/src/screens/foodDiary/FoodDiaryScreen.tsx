@@ -26,15 +26,9 @@ const FoodDiaryScreen = ({ navigation }: any) => {
     try {
       setLoading(true);
       const response = await getFoodLogs();
-      
-      if (response?.data) {
-        setFoodLogs(response.data);
-      } else {
-        setFoodLogs([]);
-      }
+      setFoodLogs(response?.data || []);
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Load failed';
-      showToast(message, 'error');
+      showToast('Load failed', 'error');
       setFoodLogs([]);
     } finally {
       setLoading(false);
