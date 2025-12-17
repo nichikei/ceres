@@ -1,78 +1,54 @@
-// Image cache sử dụng memory (chỉ dùng cho testing)
-// Trong production nên dùng cloud storage như S3, Cloudinary, v.v.
+// Temporary image storage using memory (for testing)
+// In production, should use cloud storage like S3, Cloudinary, etc.
 
 const imageCache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5 phút
 
 /**
- * Lưu ảnh tạm thời vào memory
- * @param {string} base64Image - Ảnh được mã hóa base64
- * @param {string} imageId - ID định danh unique cho ảnh
- * @returns {string} - ID của ảnh đã lưu
+ * Save image temporarily in memory
+ * @param {string} base64Image - Base64 encoded image
+ * @param {string} imageId - Unique identifier for the image
+ * @returns {string} - The image ID
  */
 export function saveImageTemporarily(base64Image, imageId) {
-  const cacheEntry = {
-    data: base64Image,
-    timestamp: Date.now(),
-  };
+  imageCache.set(imageId, base64Image);
   
-  imageCache.set(imageId, cacheEntry);
-  
-  // Tự động xóa sau 5 phút
+  // Auto cleanup after 5 minutes
   setTimeout(() => {
-    if (imageCache.has(imageId)) {
-      imageCache.delete(imageId);
-      console.log(`🗑️ Đã xóa ảnh ${imageId} khỏi cache`);
-    }
-  }, CACHE_TTL);
+    imageCache.delete(imageId);
+  }, 5 * 60 * 1000);
   
   return imageId;
 }
 
 /**
- * Lấy ảnh từ cache
- * @param {string} imageId - ID ảnh cần lấy
- * @returns {string|undefined} - Dữ liệu base64 hoặc undefined
+ * Get image from cache
+ * @param {string} imageId - Image identifier
+ * @returns {string|undefined} - Base64 image or undefined
  */
 export function getImage(imageId) {
-  const cacheEntry = imageCache.get(imageId);
-  return cacheEntry ? cacheEntry.data : undefined;
+  return imageCache.get(imageId);
 }
 
 /**
- * Kiểm tra ảnh có tồn tại trong cache không
- * @param {string} imageId - ID ảnh cần kiểm tra
- * @returns {boolean} - true nếu ảnh tồn tại
+ * Check if image exists in cache
+ * @param {string} imageId - Image identifier
+ * @returns {boolean}
  */
 export function hasImage(imageId) {
   return imageCache.has(imageId);
 }
 
 /**
- * Xóa ảnh khỏi cache
- * @param {string} imageId - ID ảnh cần xóa
- * @returns {boolean} - true nếu xóa thành công
+ * Delete image from cache
+ * @param {string} imageId - Image identifier
  */
 export function deleteImage(imageId) {
-  return imageCache.delete(imageId);
+  imageCache.delete(imageId);
 }
 
 /**
- * Xóa toàn bộ cache
+ * Clear all cached images
  */
 export function clearCache() {
-  const size = imageCache.size;
   imageCache.clear();
-  console.log(`🗑️ Đã xóa ${size} ảnh khỏi cache`);
-}
-
-/**
- * Lấy thống kê cache
- * @returns {Object} - Thông tin về cache hiện tại
- */
-export function getCacheStats() {
-  return {
-    size: imageCache.size,
-    ttl: CACHE_TTL,
-  };
 }
