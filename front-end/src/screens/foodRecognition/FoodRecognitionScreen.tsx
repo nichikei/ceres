@@ -70,7 +70,6 @@ const FoodRecognitionScreen = ({ navigation }: any) => {
         await analyzeFoodImage(imageUri);
       }
     } catch (error) {
-      console.error('Image picker error:', error);
       showToast('Failed to pick image', 'error');
     }
   };
@@ -78,8 +77,6 @@ const FoodRecognitionScreen = ({ navigation }: any) => {
   const analyzeFoodImage = async (imageUri: string) => {
     try {
       setRecognizing(true);
-      
-      // TODO: Replace with actual AI API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       const mockResult: RecognizedFood = {
