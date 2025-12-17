@@ -138,7 +138,7 @@ const FoodDiaryScreen = ({ navigation }: any) => {
           <View style={styles.emptyContainer}>
             <Ionicons name="restaurant-outline" size={64} color={currentTheme.textSecondary} />
             <Text style={[styles.emptyText, { color: currentTheme.textSecondary }]}>
-              No meals logged today
+              Chưa có bữa ăn hôm nay
             </Text>
           </View>
         ) : (
