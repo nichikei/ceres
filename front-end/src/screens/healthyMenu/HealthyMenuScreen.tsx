@@ -25,15 +25,12 @@ interface Recipe {
   protein: number;
   carbs: number;
   fat: number;
-  fiber?: number;
-  time: number; // phút
+  time: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   ingredients: string[];
   instructions: string[];
   rating: number;
   reviews: number;
-  servings?: number;
-  tags?: string[];
 }
 
 const CATEGORIES = [
