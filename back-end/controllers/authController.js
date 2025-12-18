@@ -8,12 +8,7 @@ import { mapUser } from '../utils/helpers.js';
  * Create JWT tokens for user
  */
 const createTokens = (user) => {
-  const payload = { 
-    userId: user.id, 
-    email: user.email,
-    role: user.role || 'user',
-    name: user.name
-  };
+  const payload = { id: user.id, email: user.email };
 
   const accessToken = jwt.sign(payload, config.jwt.accessSecret, {
     expiresIn: config.jwt.accessExpiresIn,
@@ -35,13 +30,8 @@ const sendAuthResponse = (res, user) => {
   // Set refresh token as HTTP-only cookie
   res.cookie(config.cookie.name, tokens.refreshToken, config.cookie.options);
 
-  // Return user data and tokens
-  const userData = mapUser(user);
-  
   res.json({
-    success: true,
-    message: 'Đăng nhập thành công',
-    user: userData,
+    user: mapUser(user),
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
   });
@@ -64,43 +54,14 @@ export const register = async (req, res) => {
       activityLevel
     } = req.body;
 
-    // Validate required fields
-    if (!email || !password) {
-      return res.status(400).json({ 
-        error: 'Thiếu thông tin',
-        message: 'Email và mật khẩu là bắt buộc' 
-      });
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ 
-        error: 'Email không hợp lệ',
-        message: 'Vui lòng nhập đúng định dạng email' 
-      });
-    }
-
-    // Validate password strength
-    if (password.length < 6) {
-      return res.status(400).json({ 
-        error: 'Mật khẩu quá ngắn',
-        message: 'Mật khẩu phải có ít nhất 6 ký tự' 
-      });
-    }
-
     // Check if user already exists
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
-      return res.status(409).json({ 
-        error: 'Email đã tồn tại',
-        message: 'Tài khoản với email này đã được đăng ký' 
-      });
+      return res.status(409).json({ error: 'Email already registered' });
     }
 
-    // Hash password with higher salt rounds for better security
-    const saltRounds = 12;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10);
 
     // Create user
     const user = await prisma.user.create({
@@ -120,19 +81,7 @@ export const register = async (req, res) => {
     sendAuthResponse(res, user);
   } catch (error) {
     console.error('Registration error:', error);
-    
-    // Handle Prisma unique constraint violation
-    if (error.code === 'P2002') {
-      return res.status(409).json({ 
-        error: 'Email đã tồn tại',
-        message: 'Email này đã được sử dụng' 
-      });
-    }
-    
-    res.status(500).json({ 
-      error: 'Đăng ký thất bại',
-      message: 'Đã xảy ra lỗi khi tạo tài khoản' 
-    });
+    res.status(500).json({ error: 'Failed to register user' });
   }
 };
 

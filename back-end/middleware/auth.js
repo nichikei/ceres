@@ -8,61 +8,40 @@ import prisma from '../config/database.js';
  * Does not require authentication, just attaches user if token is valid
  */
 export const attachUserIfPresent = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return next();
-  }
+  const token = req.headers.authorization?.split(' ')[1];
 
-  const token = authHeader.split(' ')[1];
-  
   if (!token) {
     return next();
   }
 
   try {
-    const decoded = jwt.verify(token, config.jwt.accessSecret);
-    req.user = decoded;
+    req.user = jwt.verify(token, config.jwt.accessSecret);
   } catch (error) {
     // Token invalid or expired, continue without user
-    if (error.name === 'TokenExpiredError') {
-      console.debug('Token expired in attachUserIfPresent');
-    } else if (error.name === 'JsonWebTokenError') {
-      console.debug('Invalid token in attachUserIfPresent:', error.message);
-    }
   }
 
   next();
 };
 
 /**
- * Middleware to require authentication with improved error handling
+ * Middleware to require authentication
  * Returns 401 if no valid token is present (unless guest mode is enabled)
  */
 export const requireAuth = async (req, res, next) => {
   let userId;
-  let tokenError = null;
 
   // Try to get user from attached user (from attachUserIfPresent middleware)
-  if (req.user?.userId) {
-    userId = req.user.userId;
-  } else if (req.user?.id) {
+  if (req.user?.id) {
     userId = req.user.id;
   } else {
     // Try to verify token directly
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1];
+    const header = req.headers.authorization?.split(' ')[1];
+    if (header) {
       try {
-        const decoded = jwt.verify(token, config.jwt.accessSecret);
-        userId = decoded.userId || decoded.id;
+        const decoded = jwt.verify(header, config.jwt.accessSecret);
+        userId = decoded.id;
       } catch (error) {
-        tokenError = error;
-        if (error.name === 'TokenExpiredError') {
-          console.debug('Token expired in requireAuth');
-        } else if (error.name === 'JsonWebTokenError') {
-          console.debug('Token verification failed:', error.message);
-        }
+        // Token invalid
       }
     }
   }
