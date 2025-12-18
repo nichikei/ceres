@@ -181,8 +181,22 @@ export const api = {
     http.request(`/api/food-log/${logId}`, { method: 'DELETE' }),
 
   // Workout Log
+  getWorkoutLogs: (params?: { start?: string; end?: string }): Promise<any[]> =>
+    http.request('/api/workout-logs', { params }),
   getWorkoutLog: (params?: { start?: string; end?: string }): Promise<WorkoutLog[]> =>
     http.request('/api/workout-log', { params }),
+  createWorkoutLog: (data: {
+    exerciseName: string;
+    durationMinutes: number;
+    caloriesBurnedEstimated?: number;
+    completedAt?: string;
+    isAiSuggested?: boolean;
+    sets?: number;
+    reps?: number;
+    weight?: number;
+    notes?: string;
+  }): Promise<any> =>
+    http.request('/api/workout-logs', { method: 'POST', json: data }),
   addWorkoutLog: (data: {
     exercise_name?: string;
     duration_minutes?: number;
@@ -200,8 +214,23 @@ export const api = {
     };
     return http.request('/api/workout-log', { method: 'POST', json: payload });
   },
+  updateWorkoutLog: (logId: number, data: {
+    exerciseName?: string;
+    durationMinutes?: number;
+    caloriesBurnedEstimated?: number;
+    completedAt?: string;
+    sets?: number;
+    reps?: number;
+    weight?: number;
+    notes?: string;
+  }): Promise<any> =>
+    http.request(`/api/workout-logs/${logId}`, { method: 'PUT', json: data }),
   deleteWorkoutLog: (logId: number): Promise<void> =>
-    http.request(`/api/workout-log/${logId}`, { method: 'DELETE' }),
+    http.request(`/api/workout-logs/${logId}`, { method: 'DELETE' }),
+  getWorkoutStats: (params?: { start?: string; end?: string }): Promise<any> =>
+    http.request('/api/workout-logs/stats', { params }),
+  getExerciseCategories: (): Promise<any> =>
+    http.request('/api/workout-logs/categories'),
 
   // AI Suggestions
   getAiSuggestions: (): Promise<AiSuggestion[]> => http.request('/api/ai-suggestions'),
@@ -214,6 +243,19 @@ export const api = {
 
   // Body Measurements
   getBodyMeasurements: (): Promise<BodyMeasurement[]> => http.request('/api/body-measurements'),
+  createBodyMeasurement: (data: {
+    measuredAt?: string;
+    weightKg: number;
+    neckCm?: number;
+    waistCm?: number;
+    hipCm?: number;
+    bicepsCm?: number;
+    thighCm?: number;
+  }): Promise<any> =>
+    http.request('/api/body-measurements', {
+      method: 'POST',
+      json: data,
+    }),
   createOrUpdateBodyMeasurement: (data: {
     weight_kg: number;
     neck_cm?: number;
@@ -225,6 +267,22 @@ export const api = {
     http.request('/api/body-measurements', {
       method: 'POST',
       json: data,
+    }),
+  updateBodyMeasurement: (id: number, data: {
+    weightKg?: number;
+    neckCm?: number;
+    waistCm?: number;
+    hipCm?: number;
+    bicepsCm?: number;
+    thighCm?: number;
+  }): Promise<any> =>
+    http.request(`/api/body-measurements/${id}`, {
+      method: 'PUT',
+      json: data,
+    }),
+  deleteBodyMeasurement: (id: number): Promise<void> =>
+    http.request(`/api/body-measurements/${id}`, {
+      method: 'DELETE',
     }),
 
   // Progress Photos
