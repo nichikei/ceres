@@ -4,23 +4,22 @@ import * as aiController from '../controllers/aiController.js';
 
 const router = express.Router();
 
-/**
- * AI Routes
- * Tất cả các route đều yêu cầu authentication
- */
-
-// Food recognition routes
+// Food recognition
 router.post('/recognize-food', requireAuth, aiController.recognizeFood);
+
+// Recognize food and save to food log in one step
 router.post('/recognize-and-save-food', requireAuth, aiController.recognizeAndSaveFood);
 
-// Exercise & workout routes
+// Exercise plan generation
 router.post('/exercise-plan', requireAuth, aiController.generateExercisePlan);
 
-// Chat & consultation routes
+// Chat with AI
 router.post('/chat', requireAuth, aiController.chatWithAI);
+
+// Get AI context
 router.get('/context', requireAuth, aiController.getAIContext);
 
-// Meal planning routes
+// Generate meal plan
 router.post('/meal-plan', requireAuth, aiController.generateMealPlan);
 
 export default router;
