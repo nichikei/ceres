@@ -152,18 +152,8 @@ export const recognizeFood = async (req, res) => {
       if (response.status === 429) {
         console.error('⚠️ Gemini API rate limit exceeded');
         return res.status(429).json({
-          error: 'API đang quá tải. Vui lòng đợi vài giây và thử lại.',
-          code: 'RATE_LIMIT_EXCEEDED',
-          retryAfter: 5
-        });
-      }
-      
-      // Xử lý lỗi bad request (400)
-      if (response.status === 400) {
-        console.error('❌ Gemini API bad request');
-        return res.status(400).json({
-          error: 'Yêu cầu không hợp lệ. Vui lòng kiểm tra lại ảnh.',
-          code: 'BAD_REQUEST'
+          error: 'API đang quá tải. Vui lòng đợi vài giây rồi thử lại.',
+          code: 'RATE_LIMIT_EXCEEDED'
         });
       }
       
