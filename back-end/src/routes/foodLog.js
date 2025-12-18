@@ -4,18 +4,19 @@ import * as foodController from '../controllers/foodController.js';
 
 const router = express.Router();
 
-/**
- * Food Log Routes
- * Quản lý nhật ký thực phẩm của người dùng
- */
-
-// Public/authenticated - lấy danh sách food logs
+// Get food logs (optionally authenticated)
 router.get('/', attachUserIfPresent, foodController.getFoodLogs);
 
-// Protected routes - yêu cầu authentication
+// Create food log (protected)
 router.post('/', requireAuth, foodController.createFoodLog);
+
+// Update food log (protected)
 router.put('/:id', requireAuth, foodController.updateFoodLog);
+
+// Delete food log (protected)
 router.delete('/:id', requireAuth, foodController.deleteFoodLog);
+
+// Batch delete food logs (protected)
 router.post('/batch-delete', requireAuth, foodController.batchDeleteFoodLogs);
 
 export default router;
