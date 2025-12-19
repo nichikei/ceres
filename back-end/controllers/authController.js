@@ -4,9 +4,7 @@ import { config } from '../config/index.js';
 import prisma from '../config/database.js';
 import { mapUser } from '../utils/helpers.js';
 
-/**
- * Create JWT tokens for user
- */
+// Tạo JWT tokens cho người dùng
 const createTokens = (user) => {
   const payload = { id: user.id, email: user.email };
 
@@ -21,13 +19,11 @@ const createTokens = (user) => {
   return { accessToken, refreshToken };
 };
 
-/**
- * Send authentication response with tokens
- */
+// Gửi response xác thực kèm theo tokens
 const sendAuthResponse = (res, user) => {
   const tokens = createTokens(user);
 
-  // Set refresh token as HTTP-only cookie
+  // Thiết lập refresh token dưới dạng HTTP-only cookie
   res.cookie(config.cookie.name, tokens.refreshToken, config.cookie.options);
 
   res.json({
@@ -37,9 +33,7 @@ const sendAuthResponse = (res, user) => {
   });
 };
 
-/**
- * Register new user
- */
+// Đăng ký người dùng mới
 export const register = async (req, res) => {
   try {
     const {
@@ -54,16 +48,16 @@ export const register = async (req, res) => {
       activityLevel
     } = req.body;
 
-    // Check if user already exists
+    // Kiểm tra xem email đã tồn tại chưa
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       return res.status(409).json({ error: 'Email already registered' });
     }
 
-    // Hash password
+    // Mã hóa mật khẩu
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Create user
+    // Tạo người dùng mới
     const user = await prisma.user.create({
       data: {
         email,
@@ -85,20 +79,18 @@ export const register = async (req, res) => {
   }
 };
 
-/**
- * Login user
- */
+// Đăng nhập người dùng
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
+    // Tìm người dùng theo email
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Verify password
+    // Xác thực mật khẩu
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -111,9 +103,7 @@ export const login = async (req, res) => {
   }
 };
 
-/**
- * Refresh access token
- */
+// Làm mới access token
 export const refresh = async (req, res) => {
   try {
     const token = req.body?.refreshToken || req.cookies?.[config.cookie.name] || null;
@@ -122,10 +112,10 @@ export const refresh = async (req, res) => {
       return res.status(401).json({ error: 'Missing refresh token' });
     }
 
-    // Verify refresh token
+    // Xác thực refresh token
     const payload = jwt.verify(token, config.jwt.refreshSecret);
 
-    // Get user
+    // Lấy thông tin người dùng
     const user = await prisma.user.findUnique({ where: { id: payload.id } });
     if (!user) {
       return res.status(401).json({ error: 'Invalid refresh token' });
@@ -138,9 +128,7 @@ export const refresh = async (req, res) => {
   }
 };
 
-/**
- * Logout user
- */
+// Đăng xuất người dùng
 export const logout = (req, res) => {
   res.clearCookie(config.cookie.name, {
     ...config.cookie.options,
@@ -149,9 +137,7 @@ export const logout = (req, res) => {
   res.status(204).send();
 };
 
-/**
- * Get current user profile
- */
+// Lấy thông tin profile người dùng hiện tại
 export const getProfile = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
@@ -169,9 +155,7 @@ export const getProfile = async (req, res) => {
   }
 };
 
-/**
- * Update user profile
- */
+// Cập nhật thông tin profile người dùng
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -217,9 +201,7 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-/**
- * Update user measurements
- */
+// Cập nhật số đo cơ thể người dùng
 export const updateMeasurements = async (req, res) => {
   try {
     const userId = req.user.id;

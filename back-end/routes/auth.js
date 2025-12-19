@@ -6,7 +6,7 @@ import * as authController from '../controllers/authController.js';
 
 const router = express.Router();
 
-// Register
+// Đăng ký tài khoản mới
 router.post(
   '/register',
   body('email').isEmail().withMessage('Valid email required'),
@@ -15,7 +15,7 @@ router.post(
   authController.register
 );
 
-// Login
+// Đăng nhập vào hệ thống
 router.post(
   '/login',
   body('email').isEmail().withMessage('Valid email required'),
@@ -24,19 +24,19 @@ router.post(
   authController.login
 );
 
-// Refresh token
+// Làm mới token
 router.post('/refresh', authController.refresh);
 
-// Logout
+// Đăng xuất khỏi hệ thống
 router.post('/logout', authController.logout);
 
-// Get profile (protected)
+// Lấy thông tin profile (cần xác thực)
 router.get('/me', requireAuth, authController.getProfile);
 
-// Update profile (protected)
+// Cập nhật thông tin profile (cần xác thực)
 router.put('/me', requireAuth, authController.updateProfile);
 
-// Update measurements (protected)
+// Cập nhật số đo cơ thể (cần xác thực)
 router.put('/me/measurements', requireAuth, authController.updateMeasurements);
 
 export default router;

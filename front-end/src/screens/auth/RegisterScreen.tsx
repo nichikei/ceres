@@ -1,27 +1,10 @@
-// src/screens/auth/RegisterScreen.tsx
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, borderRadius } from '../../context/ThemeContext';
 import { AuthStackParamList } from '../../navigation/AppNavigator';
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
 
+// Màn hình đăng ký
 export default function RegisterScreen() {
   const navigation = useNavigation<RegisterScreenNavigationProp>();
   const { register } = useAuth();
@@ -32,6 +15,7 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Hàm xử lý đăng ký
   const handleRegister = async () => {
     if (!name || !email || !password || !confirmPassword) {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin');

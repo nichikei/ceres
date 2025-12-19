@@ -3,10 +3,8 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/index.js';
 import prisma from '../config/database.js';
 
-/**
- * Middleware to attach user if JWT token is present
- * Does not require authentication, just attaches user if token is valid
- */
+// Middleware đính kèm thông tin người dùng nếu có JWT token
+// Không yêu cầu bắt buộc phải xác thực, chỉ đính kèm thông tin nếu token hợp lệ
 export const attachUserIfPresent = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
 
@@ -17,36 +15,34 @@ export const attachUserIfPresent = (req, res, next) => {
   try {
     req.user = jwt.verify(token, config.jwt.accessSecret);
   } catch (error) {
-    // Token invalid or expired, continue without user
+    // Token không hợp lệ hoặc hết hạn, tiếp tục mà không có thông tin người dùng
   }
 
   next();
 };
 
-/**
- * Middleware to require authentication
- * Returns 401 if no valid token is present (unless guest mode is enabled)
- */
+// Middleware yêu cầu xác thỳc
+// Trả về 401 nếu không có token hợp lệ (trừ khi bật chế độ guest)
 export const requireAuth = async (req, res, next) => {
   let userId;
 
-  // Try to get user from attached user (from attachUserIfPresent middleware)
+  // Thử lấy thông tin người dùng đã được đính kèm (từ middleware attachUserIfPresent)
   if (req.user?.id) {
     userId = req.user.id;
   } else {
-    // Try to verify token directly
+    // Thử xác thực token trực tiếp
     const header = req.headers.authorization?.split(' ')[1];
     if (header) {
       try {
         const decoded = jwt.verify(header, config.jwt.accessSecret);
         userId = decoded.id;
       } catch (error) {
-        // Token invalid
+        // Token không hợp lệ
       }
     }
   }
 
-  // Fallback to guest mode if enabled
+  // Sử dụng chế độ guest nếu được bật
   if (!userId && config.allowGuestMode) {
     userId = config.defaultUserId;
   }
@@ -56,7 +52,7 @@ export const requireAuth = async (req, res, next) => {
   }
 
   try {
-    // Verify user exists in database
+    // Xác minh người dùng tồn tại trong database
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, email: true }
@@ -74,18 +70,14 @@ export const requireAuth = async (req, res, next) => {
   }
 };
 
-/**
- * Get user ID from request or fallback to default
- */
+// Lấy user ID từ request hoặc sử dụng giá trị mặc định
 export const getUserIdOrFallback = (req) => {
   return req.user?.id ||
          Number(req.query.userId || req.body?.userId) ||
          config.defaultUserId;
 };
 
-/**
- * Ensure user identity for write operations
- */
+// Đảm bảo danh tính người dùng cho các thao tác ghi dữ liệu
 export const ensureUserIdentity = (req, res) => {
   if (req.user?.id) {
     return req.user.id;
