@@ -87,7 +87,7 @@ export default function ProfileScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -110,7 +110,7 @@ export default function ProfileScreen() {
               <Ionicons name="camera" size={18} color="#fff" />
             </TouchableOpacity>
           </View>
-          
+
           <Text style={styles.profileName}>{user?.name || 'Nguyễn Văn A'}</Text>
           <Text style={styles.profileEmail}>{user?.email || 'user@example.com'}</Text>
 
@@ -126,7 +126,7 @@ export default function ProfileScreen() {
             <Ionicons name="person-circle" size={20} color={colors.primary} />
             <Text style={styles.sectionTitle}>Thông tin cá nhân</Text>
           </View>
-          
+
           {personalInfo.map((item, index) => (
             <View key={index} style={styles.infoItem}>
               <View style={[styles.infoIcon, { backgroundColor: item.color + '20' }]}>
@@ -146,7 +146,7 @@ export default function ProfileScreen() {
             <Ionicons name="fitness" size={20} color={colors.primary} />
             <Text style={styles.sectionTitle}>Chỉ số sức khỏe</Text>
           </View>
-          
+
           <View style={styles.statsGrid}>
             {healthStats.map((stat, index) => (
               <View key={index} style={styles.statCard}>
@@ -166,7 +166,7 @@ export default function ProfileScreen() {
             <Ionicons name="settings" size={20} color={colors.primary} />
             <Text style={styles.sectionTitle}>Quản lý tài khoản</Text>
           </View>
-          
+
           <TouchableOpacity style={styles.actionItem} activeOpacity={0.7}>
             <View style={styles.actionLeft}>
               <Ionicons name="key-outline" size={20} color={colors.text} />
