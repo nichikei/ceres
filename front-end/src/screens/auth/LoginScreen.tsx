@@ -1,4 +1,3 @@
-// src/screens/auth/LoginScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -22,6 +21,7 @@ import { AuthStackParamList } from '../../navigation/AppNavigator';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 
+// Màn hình đăng nhập
 export default function LoginScreen() {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const { login } = useAuth();
@@ -34,18 +34,18 @@ export default function LoginScreen() {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
-  // Validate email format
+  // Kiểm tra định dạng email
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // Validate password strength
+  // Kiểm tra độ mạnh mật khẩu
   const validatePassword = (password: string): boolean => {
     return password.length >= 6;
   };
 
-  // Handle email change with validation
+  // Xử lý thay đổi email với validate
   const handleEmailChange = (text: string) => {
     setEmail(text);
     if (text && !validateEmail(text)) {
@@ -55,7 +55,7 @@ export default function LoginScreen() {
     }
   };
 
-  // Handle password change with validation
+  // Xử lý thay đổi mật khẩu với validate
   const handlePasswordChange = (text: string) => {
     setPassword(text);
     if (text && !validatePassword(text)) {
@@ -65,12 +65,13 @@ export default function LoginScreen() {
     }
   };
 
+  // Hàm xử lý đăng nhập
   const handleLogin = async () => {
-    // Reset errors
+    // Reset các thông báo lỗi
     setEmailError('');
     setPasswordError('');
 
-    // Validate inputs
+    // Kiểm tra dữ liệu đầu vào
     if (!email || !password) {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin');
       return;
@@ -91,7 +92,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login(email, password);
-      // Login successful, navigation handled by AuthContext
+      // Đăng nhập thành công, navigation được xử lý bởi AuthContext
     } catch (error: any) {
       const errorMessage = error.message || 'Email hoặc mật khẩu không đúng';
       Alert.alert('Đăng nhập thất bại', errorMessage);

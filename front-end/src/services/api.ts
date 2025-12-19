@@ -1,6 +1,6 @@
-// src/services/api.ts
 import { http } from './http';
 
+// Interface cho người dùng
 export interface User {
   user_id: number;
   email: string;
@@ -24,6 +24,7 @@ export interface User {
   } | null;
 }
 
+// Interface cho đo lường cơ thể
 export interface BodyMeasurement {
   id: number;
   user_id: number;
@@ -37,6 +38,7 @@ export interface BodyMeasurement {
   created_at: string;
 }
 
+// Interface cho nhật ký ăn uống
 export interface FoodLog {
   log_id: number;
   user_id: number;
@@ -52,6 +54,7 @@ export interface FoodLog {
   image_url?: string;
 }
 
+// Interface cho nhật ký tập luyện
 export interface WorkoutLog {
   log_id: number;
   user_id: number;
@@ -62,6 +65,7 @@ export interface WorkoutLog {
   is_ai_suggested: boolean;
 }
 
+// Interface cho đề xuất từ AI
 export interface AiSuggestion {
   suggestion_id: number;
   user_id: number;
@@ -71,6 +75,7 @@ export interface AiSuggestion {
   content_details: any;
 }
 
+// Interface cho thống kê hàng ngày
 export interface DailyStatistics {
   date: string;
   total_calories: number;
@@ -83,6 +88,7 @@ export interface DailyStatistics {
   workouts_count: number;
 }
 
+// Payload cho việc cập nhật thông tin người dùng
 type UserUpdatePayload = Partial<Omit<User, 'user_id' | 'email' | 'password_hash'>> & {
   name?: string;
   age?: number;
@@ -161,7 +167,7 @@ export const api = {
     sugar?: number;
     image_url?: string;
   }): Promise<FoodLog> => {
-    // Map snake_case to camelCase for backend
+    // Chuyển đổi từ snake_case sang camelCase cho backend
     const payload = {
       foodName: data.food_name,
       calories: data.calories,
@@ -204,7 +210,7 @@ export const api = {
     completed_at?: string;
     is_ai_suggested?: boolean;
   }): Promise<WorkoutLog> => {
-    // Map snake_case to camelCase for backend
+    // Chuyển đổi từ snake_case sang camelCase cho backend
     const payload = {
       exerciseName: data.exercise_name,
       durationMinutes: data.duration_minutes,
@@ -232,16 +238,16 @@ export const api = {
   getExerciseCategories: (): Promise<any> =>
     http.request('/api/workout-logs/categories'),
 
-  // AI Suggestions
+  // Đề xuất từ AI
   getAiSuggestions: (): Promise<AiSuggestion[]> => http.request('/api/ai-suggestions'),
 
-  // Statistics
+  // Thống kê
   getDailyStatistics: (date: string): Promise<DailyStatistics> =>
     http.request(`/api/statistics/daily?date=${date}`),
   getWeeklyStatistics: (startDate: string, endDate: string): Promise<DailyStatistics[]> =>
     http.request(`/api/statistics/weekly?startDate=${startDate}&endDate=${endDate}`),
 
-  // Body Measurements
+  // Số đo cơ thể
   getBodyMeasurements: (): Promise<BodyMeasurement[]> => http.request('/api/body-measurements'),
   createBodyMeasurement: (data: {
     measuredAt?: string;
@@ -285,7 +291,7 @@ export const api = {
       method: 'DELETE',
     }),
 
-  // Progress Photos
+  // Ảnh tiến trình
   uploadProgressPhoto: (data: {
     date: string;
     view: string;
@@ -301,11 +307,11 @@ export const api = {
       params: date ? { date } : undefined,
     }),
 
-  // Chat / AI Messages
+  // Tin nhắn AI / Chat
   sendMessage: (message: string): Promise<any> =>
     http.request('/api/chat', { method: 'POST', json: { message } }),
 
-  // AI Food Recognition - Use Gemini AI
+  // Nhận diện thực phẩm bằng AI - Sử dụng Gemini AI
   analyzeFoodImage: async (imageUri: string): Promise<{
     food_name: string;
     calories: number;
@@ -315,7 +321,7 @@ export const api = {
     confidence: number;
   }> => {
     try {
-      // Convert image URI to base64
+      // Chuyển đổi URI ảnh sang base64
       const base64Image = await fetch(imageUri)
         .then(res => res.blob())
         .then(blob => new Promise<string>((resolve, reject) => {
@@ -325,7 +331,7 @@ export const api = {
           reader.readAsDataURL(blob);
         }));
 
-      // Call the AI recognition API
+      // Gọi API nhận diện AI
       const result = await http.request<{ success: boolean; data: {
         foodName: string;
         calories: number;
@@ -352,29 +358,29 @@ export const api = {
       };
     } catch (error: any) {
       console.error('❌ Error analyzing food image:', error);
-      
+
       // Xử lý lỗi rate limit (429)
       if (error.message?.includes('429') || error.status === 429) {
         throw new Error('API đang quá tải. Vui lòng đợi vài giây rồi thử lại.');
       }
-      
+
       // Xử lý lỗi network
       if (error.message?.includes('Network') || error.message?.includes('timeout')) {
         throw new Error('Lỗi kết nối mạng. Vui lòng kiểm tra internet và thử lại.');
       }
-      
+
       throw new Error(error.message || 'Không thể phân tích ảnh. Vui lòng thử lại.');
     }
   },
 
-  // Generate 7-day meal plan
+  // Tạo kế hoạch bữa ăn 7 ngày
   generateMealPlan: (data: { allergies?: string; preferences?: string }): Promise<any> =>
     http.request('/api/ai/meal-plan', {
       method: 'POST',
       json: data,
     }),
 
-  // Calendar Events
+  // Sự kiện lịch
   getCalendarEvents: (): Promise<any[]> =>
     http.request('/api/calendar'),
 

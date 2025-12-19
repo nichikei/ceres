@@ -1,4 +1,3 @@
-// src/screens/settings/SettingsScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -19,6 +18,7 @@ import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import { colors, spacing, borderRadius } from '../../context/ThemeContext';
 
+// Các mục tiêu
 const GOALS = [
   { value: 'lose_weight', label: 'Giảm cân' },
   { value: 'maintain_weight', label: 'Duy trì cân nặng' },
@@ -26,6 +26,7 @@ const GOALS = [
   { value: 'build_muscle', label: 'Tăng cơ' },
 ];
 
+// Mức độ hoạt động
 const ACTIVITY_LEVELS = [
   { value: 'sedentary', label: 'Ít vận động' },
   { value: 'lightly_active', label: 'Vận động nhẹ' },
@@ -34,6 +35,7 @@ const ACTIVITY_LEVELS = [
   { value: 'extremely_active', label: 'Vận động rất nhiều' },
 ];
 
+// Màn hình cài đặt
 export default function SettingsScreen() {
   const { user, logout, refreshUser } = useAuth();
   const [notifications, setNotifications] = useState(true);
@@ -45,7 +47,7 @@ export default function SettingsScreen() {
   const [activityModalVisible, setActivityModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Edit form state
+  // Trạng thái form chỉnh sửa
   const [name, setName] = useState(user?.name || '');
   const [age, setAge] = useState(user?.age?.toString() || '');
   const [height, setHeight] = useState(user?.height_cm?.toString() || '');

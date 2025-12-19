@@ -1,4 +1,3 @@
-// src/navigation/AppNavigator.tsx
 import React from 'react';
 import { View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -10,12 +9,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../context/ThemeContext';
 
-// Auth Screens
+// Màn hình xác thực
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 
-// Main Screens
+// Màn hình chính
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import FoodDiaryScreen from '../screens/foodDiary/FoodDiaryScreen';
 import ExercisesScreen from '../screens/exercises/ExercisesScreen';
@@ -27,7 +26,7 @@ import SettingsScreen from '../screens/settings/SettingsScreen';
 import { UtilitiesStackNavigator } from './UtilitiesStackNavigator';
 import type { UtilitiesStackParamList } from './UtilitiesStackNavigator';
 
-// Types
+// Các kiểu dữ liệu cho navigation
 export type RootStackParamList = {
   Auth: undefined;
   Onboarding: undefined;
@@ -51,7 +50,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-// Auth Navigator
+// Navigator cho xác thực
 const AuthNavigator = () => (
   <AuthStack.Navigator screenOptions={{ headerShown: false }}>
     <AuthStack.Screen name="Login" component={LoginScreen} />
@@ -59,7 +58,7 @@ const AuthNavigator = () => (
   </AuthStack.Navigator>
 );
 
-// Main Tab Navigator
+// Tab Navigator chính
 const MainTabNavigator = () => {
   const insets = useSafeAreaInsets();
 
@@ -131,6 +130,7 @@ const MainTabNavigator = () => {
         },
       })}
     >
+      {/* Các tab chính */}
       <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Trang chủ', headerShown: false }} />
       <Tab.Screen name="FoodLog" component={FoodDiaryScreen} options={{ title: 'Nhật ký', headerShown: false }} />
       <Tab.Screen

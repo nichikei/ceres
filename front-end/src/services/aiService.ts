@@ -1,7 +1,6 @@
-// src/services/aiService.ts
-// AI Services for Food Recognition and Health Consulting
+// Các dịch vụ AI cho nhận diện thực phẩm và tư vấn sức khỏe
 
-
+// Interface cho kết quả nhận diện thực phẩm
 export interface FoodRecognitionResult {
   foodName: string;
   calories: number;
@@ -12,6 +11,7 @@ export interface FoodRecognitionResult {
   confidence: number;
 }
 
+// Interface cho kết quả phân tích thực phẩm
 export interface AnalysisResult {
   foodName: string;
   amount: string;
@@ -22,6 +22,7 @@ export interface AnalysisResult {
   sugar: number;
 }
 
+// Interface cho bài tập AI
 export interface AIExercise {
   name: string;
   duration: string;
@@ -29,6 +30,7 @@ export interface AIExercise {
   videoId?: string;
 }
 
+// Interface cho kế hoạch tập luyện AI
 export interface AIExercisePlan {
   intensity: 'low' | 'medium' | 'high';
   exercises: AIExercise[];
@@ -36,11 +38,13 @@ export interface AIExercisePlan {
   advice: string;
 }
 
+// Interface cho tin nhắn chat
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
 }
 
+// Interface cho thông tin profile người dùng
 export interface UserProfileContext {
   age: number;
   weight: number;
@@ -50,9 +54,7 @@ export interface UserProfileContext {
   workoutDays: number;
 }
 
-/**
- * Nhận diện đồ ăn từ ảnh base64
- */
+// Nhận diện đồ ăn từ ảnh base64
 export const recognizeFoodFromImage = async (
   base64Image: string
 ): Promise<FoodRecognitionResult> => {
@@ -64,7 +66,7 @@ export const recognizeFoodFromImage = async (
         json: { base64Image },
       }
     );
-    
+
     return response.data;
   } catch (error: any) {
     console.error('Food recognition error:', error);
@@ -72,9 +74,7 @@ export const recognizeFoodFromImage = async (
   }
 };
 
-/**
- * Phân tích đồ ăn từ ảnh và tự động lưu vào food log
- */
+// Phân tích đồ ăn từ ảnh và tự động lưu vào food log
 export const analyzeAndSaveFood = async (
   base64Image: string,
   mealType?: 'breakfast' | 'lunch' | 'dinner' | 'snack'
@@ -89,14 +89,14 @@ export const analyzeAndSaveFood = async (
       '/api/ai/recognize-and-save-food',
       {
         method: 'POST',
-        json: { 
+        json: {
           base64Image,
           mealType,
           eatenAt: new Date().toISOString(),
         },
       }
     );
-    
+
     if (!response.success) {
       throw new Error('Failed to recognize and save food');
     }
@@ -121,15 +121,13 @@ export const analyzeAndSaveFood = async (
   }
 };
 
-/**
- * Phân tích đồ ăn từ ảnh và trả về thông tin dinh dưỡng chi tiết
- */
+// Phân tích đồ ăn từ ảnh và trả về thông tin dinh dưỡng chi tiết
 export const analyzeFood = async (
   base64Image: string
 ): Promise<{ analysis: AnalysisResult; error?: string }> => {
   try {
     const result = await recognizeFoodFromImage(base64Image);
-    
+
     return {
       analysis: {
         foodName: result.foodName,
@@ -157,9 +155,7 @@ export const analyzeFood = async (
   }
 };
 
-/**
- * Chat với Gemini AI để tư vấn sức khỏe
- */
+// Chat với Gemini AI để tư vấn sức khỏe
 export const chatWithAI = async (
   message: string,
   history: ChatMessage[] = [],
@@ -177,7 +173,7 @@ export const chatWithAI = async (
         },
       }
     );
-    
+
     return response.reply || 'Xin lỗi, tôi không hiểu yêu cầu của bạn.';
   } catch (error: any) {
     console.error('Chat AI error:', error);
@@ -185,9 +181,7 @@ export const chatWithAI = async (
   }
 };
 
-/**
- * Tạo kế hoạch tập luyện bằng AI
- */
+// Tạo kế hoạch tập luyện bằng AI
 export const generateExercisePlan = async (
   todayCalories: number,
   userProfile: UserProfileContext,
@@ -195,7 +189,7 @@ export const generateExercisePlan = async (
 ): Promise<AIExercisePlan> => {
   try {
     const prompt = query || `Gợi ý bài tập phù hợp cho tôi (${userProfile.age} tuổi, ${userProfile.weight}kg, mục tiêu: ${userProfile.goal === 'lose' ? 'giảm cân' : userProfile.goal === 'gain' ? 'tăng cân' : 'duy trì'})`;
-    
+
     const response = await http.request<AIExercisePlan>(
       '/api/ai/exercise-plan',
       {
@@ -206,11 +200,11 @@ export const generateExercisePlan = async (
         },
       }
     );
-    
+
     return response;
   } catch (error: any) {
     console.error('Exercise plan error:', error);
-    // Return default plan if AI fails
+    // Trả về kế hoạch mặc định nếu AI gặp lỗi
     return {
       intensity: 'medium',
       exercises: [
@@ -224,12 +218,10 @@ export const generateExercisePlan = async (
   }
 };
 
-/**
- * Format thông tin dinh dưỡng để hiển thị
- */
+// Định dạng thông tin dinh dưỡng để hiển thị
 export const formatNutritionInfo = (nutrition: FoodRecognitionResult): string => {
   const confidencePercent = Math.round(nutrition.confidence * 100);
-  
+
   return `🍽️ ${nutrition.foodName}
 
 📊 Thông tin dinh dưỡng (${nutrition.portionSize}):
@@ -241,15 +233,13 @@ export const formatNutritionInfo = (nutrition: FoodRecognitionResult): string =>
 Độ chính xác: ${confidencePercent}%`;
 };
 
-/**
- * Tính toán dinh dưỡng theo khẩu phần tùy chỉnh
- */
+// Tính toán dinh dưỡng theo khẩu phần tùy chỉnh
 export const calculateNutrition = (
   baseNutrition: FoodRecognitionResult,
   grams: number
 ): FoodRecognitionResult => {
   const multiplier = grams / 100;
-  
+
   return {
     ...baseNutrition,
     calories: Math.round(baseNutrition.calories * multiplier),

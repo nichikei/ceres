@@ -1,4 +1,3 @@
-// src/screens/onboarding/OnboardingScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -16,12 +15,14 @@ import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import { colors, spacing, borderRadius } from '../../context/ThemeContext';
 
+// Các mục tiêu tập luyện
 const GOALS = [
   { id: 'lose_weight', label: 'Giảm cân', icon: '📉' },
   { id: 'maintain', label: 'Duy trì cân nặng', icon: '⚖️' },
   { id: 'gain_weight', label: 'Tăng cân', icon: '💪' },
 ];
 
+// Mức độ hoạt động thể chất
 const ACTIVITY_LEVELS = [
   { id: 'sedentary', label: 'Ít vận động', description: 'Ít hoặc không tập' },
   { id: 'light', label: 'Nhẹ nhàng', description: '1-3 ngày/tuần' },
@@ -30,17 +31,19 @@ const ACTIVITY_LEVELS = [
   { id: 'very_active', label: 'Rất năng động', description: 'Tập nặng mỗi ngày' },
 ];
 
+// Giới tính
 const GENDERS = [
   { id: 'male', label: 'Nam', icon: '👨' },
   { id: 'female', label: 'Nữ', icon: '👩' },
 ];
 
+// Màn hình onboarding để thu thập thông tin người dùng
 export default function OnboardingScreen() {
   const { refreshUser } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Form data
+  // Dữ liệu form
   const [gender, setGender] = useState('');
   const [age, setAge] = useState('');
   const [height, setHeight] = useState('');
@@ -81,6 +84,7 @@ export default function OnboardingScreen() {
     }
   };
 
+  // Xử lý submit form
   const handleSubmit = async () => {
     setLoading(true);
     try {

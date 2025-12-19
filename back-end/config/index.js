@@ -6,12 +6,12 @@ export const config = {
   port: process.env.PORT || 3001,
   nodeEnv: process.env.NODE_ENV || 'development',
 
-  // Database
+  // Các thông số Database
   databaseUrl: process.env.DATABASE_URL,
   defaultUserId: Number(process.env.DEFAULT_USER_ID || 1),
   allowGuestMode: process.env.ALLOW_GUEST_MODE !== 'false',
 
-  // JWT
+  // Các thông số JWT
   jwt: {
     accessSecret: process.env.JWT_SECRET || 'dev-access-secret',
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
@@ -19,31 +19,31 @@ export const config = {
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },
 
-  // CORS - Cho phép tất cả origins trong development để dễ dàng với Expo Go
+  // Cấu hình CORS - Cho phép tất cả origins trong development để dễ dàng với Expo Go
   corsOrigins: process.env.NODE_ENV === 'production'
     ? (process.env.CORS_ORIGINS?.split(',') || [])
-    : '*',  // Allow all origins in development for Expo Go
+    : '*',  // Cho phép tất cả origins trong development cho Expo Go
 
-  // Gemini API
+  // API Gemini
   gemini: {
     apiKey: process.env.GEMINI_API_KEY,
     model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
     apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
   },
 
-  // Cookie settings
+  // Cài đặt Cookie
   cookie: {
     name: 'refreshToken',
     options: {
       httpOnly: true,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 ngày
     },
   },
 };
 
-// Validate required config
+// Kiểm tra các thiết lập bắt buộc
 if (!config.gemini.apiKey) {
   console.error('❌ ERROR: GEMINI_API_KEY not found in environment variables!');
   console.error('Get your API key from: https://aistudio.google.com/apikey');
