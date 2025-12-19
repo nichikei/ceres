@@ -1,22 +1,6 @@
-/**
- * Main Navigation Configuration
- * 
- * Manages the app's navigation structure with three main stacks:
- * 1. Auth Stack - Login and Registration screens
- * 2. Onboarding Stack - User profile setup flow
- * 3. Main Stack - Primary app features with bottom tab navigation
- * 
- * Navigation flow:
- * - Not authenticated → Auth Stack (Login/Register)
- * - Authenticated but not onboarded → Onboarding Screen
- * - Authenticated and onboarded → Main Tab Navigator
- * 
- * @module AppNavigator
- */
-
 // src/navigation/AppNavigator.tsx
 import React from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -43,45 +27,26 @@ import SettingsScreen from '../screens/settings/SettingsScreen';
 import { UtilitiesStackNavigator } from './UtilitiesStackNavigator';
 import type { UtilitiesStackParamList } from './UtilitiesStackNavigator';
 
-/**
- * Navigation Type Definitions
- * 
- * These types enable type-safe navigation throughout the app.
- * Use with navigation.navigate() for autocomplete and type checking.
- */
-
-/**
- * Root Stack Parameter List
- * Top-level navigation structure
- */
+// Types
 export type RootStackParamList = {
-  Auth: undefined;        // Authentication flow
-  Onboarding: undefined;  // User onboarding flow
-  Main: undefined;        // Main app navigation
+  Auth: undefined;
+  Onboarding: undefined;
+  Main: undefined;
 };
 
-/**
- * Authentication Stack Parameter List
- * Screens for user authentication
- */
 export type AuthStackParamList = {
-  Login: undefined;       // Login screen
-  Register: undefined;    // Registration screen
+  Login: undefined;
+  Register: undefined;
 };
 
-/**
- * Main Tab Navigator Parameter List
- * Bottom tab navigation screens in main app
- */
 export type MainTabParamList = {
-  Dashboard: undefined;   // Home/Dashboard screen
-  FoodLog: undefined;     // Food diary/log screen
-  Camera: undefined;      // Food recognition camera
-  Utilities: NavigatorScreenParams<UtilitiesStackParamList>; // Utilities stack
-  Settings: undefined;    // Settings and profile
+  Dashboard: undefined;
+  FoodLog: undefined;
+  Camera: undefined;
+  Utilities: NavigatorScreenParams<UtilitiesStackParamList>;
+  Settings: undefined;
 };
 
-// Initialize navigators with type safety
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -168,13 +133,13 @@ const MainTabNavigator = () => {
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Trang chủ', headerShown: false }} />
       <Tab.Screen name="FoodLog" component={FoodDiaryScreen} options={{ title: 'Nhật ký', headerShown: false }} />
-      <Tab.Screen 
-        name="Camera" 
-        component={FoodRecognitionScreen} 
-        options={{ 
+      <Tab.Screen
+        name="Camera"
+        component={FoodRecognitionScreen}
+        options={{
           title: 'Chụp ảnh',
           tabBarLabel: () => null,
-        }} 
+        }}
       />
       <Tab.Screen name="Utilities" component={UtilitiesStackNavigator} options={{ title: 'Tiện ích' }} />
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Cài đặt' }} />
