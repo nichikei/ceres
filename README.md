@@ -163,7 +163,16 @@ Xem [DOCUMENTATION.md](./DOCUMENTATION.md) để biết thêm chi tiết về:
 
 ## 👨‍💻 Developer
 
-**Branch**: `auth-onboarding-setting-lehoang281105`
+**Branch**: `auth-onboarding-setting`
 
+## 📄 License
+
+MIT License
+
+## 🤝 Contributing
+
+Contributions, issues và feature requests đều được chào đón!
+
+---
 
 Made with ❤️ by Le Hoang

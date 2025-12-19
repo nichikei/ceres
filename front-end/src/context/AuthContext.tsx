@@ -1,3 +1,4 @@
+// src/context/AuthContext.tsx
 import React, {
   createContext,
   useContext,
@@ -11,7 +12,6 @@ import * as SecureStore from 'expo-secure-store';
 import { api, type User } from '../services/api';
 import { http } from '../services/http';
 
-// Interface cho giá trị context xác thực
 export interface AuthContextValue {
   user: User | null;
   isLoggedIn: boolean;
@@ -25,7 +25,6 @@ export interface AuthContextValue {
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// Ánh xạ response xác thực và lưu tokens
 const mapAuthResponse = async (data: any): Promise<User | null> => {
   if (data?.accessToken && data?.refreshToken) {
     await http.setTokens(data.accessToken, data.refreshToken);
@@ -34,16 +33,13 @@ const mapAuthResponse = async (data: any): Promise<User | null> => {
   return user ?? null;
 };
 
-// Provider cung cấp context xác thực cho toàn ứng dụng
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Khởi tạo và kiểm tra token khi component mount
   useEffect(() => {
     let isMounted = true;
 
-    // Khởi tạo ứng dụng: kiểm tra và tải thông tin người dùng
     const bootstrap = async () => {
       const token = await http.getAccessToken();
       if (!token) {
@@ -70,7 +66,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  // Hàm xử lý đăng nhập
   const login = useCallback(async (email: string, password: string) => {
     const data = await http.request('/api/auth/login', {
       method: 'POST',
@@ -81,7 +76,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(profile);
   }, []);
 
-  // Hàm xử lý đăng ký
   const register = useCallback(async (payload: Record<string, any>) => {
     const data = await http.request('/api/auth/register', {
       method: 'POST',
@@ -92,19 +86,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(profile);
   }, []);
 
-  // Hàm xử lý đăng xuất
   const logout = useCallback(async () => {
     try {
       await http.request('/api/auth/logout', { method: 'POST' });
     } catch {
-      // Bỏ qua lỗi
+      // Ignore errors
     } finally {
       await http.clearTokens();
       setUser(null);
     }
   }, []);
 
-  // Hàm làm mới thông tin người dùng
   const refreshUser = useCallback(async (): Promise<User | null> => {
     try {
       const profile = await api.getCurrentUser();

@@ -1,6 +1,8 @@
 import { validationResult } from 'express-validator';
 
-// Middleware kiểm tra validate request sử dụng express-validator
+/**
+ * Middleware to validate request using express-validator
+ */
 export const validate = (req, res, next) => {
   const errors = validationResult(req);
 

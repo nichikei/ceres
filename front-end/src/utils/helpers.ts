@@ -1,12 +1,17 @@
+// src/utils/helpers.ts
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
 
-// Định dạng ngày tháng
+/**
+ * Format date to display string
+ */
 export const formatDate = (date: string | Date, formatString: string = 'MMM d, yyyy'): string => {
   const dateObj = typeof date === 'string' ? parseISO(date) : date;
   return format(dateObj, formatString);
 };
 
-// Định dạng ngày tương đối so với hôm nay
+/**
+ * Format date relative to today
+ */
 export const formatRelativeDate = (date: string | Date): string => {
   const dateObj = typeof date === 'string' ? parseISO(date) : date;
 
@@ -15,14 +20,18 @@ export const formatRelativeDate = (date: string | Date): string => {
   return format(dateObj, 'MMM d');
 };
 
-// Tính chỉ số BMI
+/**
+ * Calculate BMI
+ */
 export const calculateBMI = (weightKg: number, heightCm: number): number => {
   if (!weightKg || !heightCm) return 0;
   const heightM = heightCm / 100;
   return Number((weightKg / (heightM * heightM)).toFixed(1));
 };
 
-// Lấy phân loại BMI
+/**
+ * Get BMI category
+ */
 export const getBMICategory = (bmi: number): { label: string; color: string } => {
   if (bmi < 18.5) return { label: 'Underweight', color: '#60A5FA' };
   if (bmi < 25) return { label: 'Normal', color: '#10B981' };
@@ -30,7 +39,9 @@ export const getBMICategory = (bmi: number): { label: string; color: string } =>
   return { label: 'Obese', color: '#EF4444' };
 };
 
-// Tính TDEE (Tổng lượng năng lượng tiêu thụ hàng ngày)
+/**
+ * Calculate TDEE (Total Daily Energy Expenditure)
+ */
 export const calculateTDEE = (
   weightKg: number,
   heightCm: number,
@@ -38,7 +49,7 @@ export const calculateTDEE = (
   gender: 'male' | 'female',
   activityLevel: string = 'moderate'
 ): number => {
-  // Phương trình Harris-Benedict
+  // Harris-Benedict Equation
   const bmr = gender === 'male'
     ? 88.362 + (13.397 * weightKg) + (4.799 * heightCm) - (5.677 * age)
     : 447.593 + (9.247 * weightKg) + (3.098 * heightCm) - (4.33 * age);
@@ -54,12 +65,16 @@ export const calculateTDEE = (
   return Math.round(bmr * (activityMultipliers[activityLevel] || 1.55));
 };
 
-// Định dạng số có dấu phân cách hàng nghìn
+/**
+ * Format number with thousand separator
+ */
 export const formatNumber = (num: number): string => {
   return num.toLocaleString('en-US');
 };
 
-// Cắt ngắn văn bản
+/**
+ * Truncate text
+ */
 export const truncateText = (text: string, maxLength: number): string => {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength - 3) + '...';
