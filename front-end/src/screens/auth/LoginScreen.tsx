@@ -29,18 +29,72 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  // Validate email format
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Validate password strength
+  const validatePassword = (password: string): boolean => {
+    return password.length >= 6;
+  };
+
+  // Handle email change with validation
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    if (text && !validateEmail(text)) {
+      setEmailError('Email không hợp lệ');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  // Handle password change with validation
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    if (text && !validatePassword(text)) {
+      setPasswordError('Mật khẩu phải có ít nhất 6 ký tự');
+    } else {
+      setPasswordError('');
+    }
+  };
 
   const handleLogin = async () => {
+    // Reset errors
+    setEmailError('');
+    setPasswordError('');
+
+    // Validate inputs
     if (!email || !password) {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setEmailError('Email không hợp lệ');
+      Alert.alert('Lỗi', 'Email không hợp lệ');
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      setPasswordError('Mật khẩu phải có ít nhất 6 ký tự');
+      Alert.alert('Lỗi', 'Mật khẩu quá ngắn');
       return;
     }
 
     setLoading(true);
     try {
       await login(email, password);
+      // Login successful, navigation handled by AuthContext
     } catch (error: any) {
-      Alert.alert('Đăng nhập thất bại', error.message || 'Email hoặc mật khẩu không đúng');
+      const errorMessage = error.message || 'Email hoặc mật khẩu không đúng';
+      Alert.alert('Đăng nhập thất bại', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -68,27 +122,56 @@ export default function LoginScreen() {
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Email</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, emailError && styles.inputError]}
                 placeholder="Nhập email của bạn"
                 placeholderTextColor={colors.textLight}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={handleEmailChange}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
+                editable={!loading}
               />
+              {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
             </View>
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Mật khẩu</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Nhập mật khẩu"
-                placeholderTextColor={colors.textLight}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={[styles.passwordInput, passwordError && styles.inputError]}
+                  placeholder="Nhập mật khẩu"
+                  placeholderTextColor={colors.textLight}
+                  value={password}
+                  onChangeText={handlePasswordChange}
+                  secureTextEntry={!showPassword}
+                  editable={!loading}
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setShowPassword(!showPassword)}
+                  disabled={loading}
+                >
+                  <Text style={styles.eyeIconText}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                </TouchableOpacity>
+              </View>
+              {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+            </View>
+
+            <View style={styles.rememberContainer}>
+              <TouchableOpacity
+                style={styles.rememberRow}
+                onPress={() => setRememberMe(!rememberMe)}
+                disabled={loading}
+              >
+                <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+                  {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+                </View>
+                <Text style={styles.rememberText}>Ghi nhớ đăng nhập</Text>
+              </TouchableOpacity>
+              <TouchableOpacity disabled={loading}>
+                <Text style={styles.forgotText}>Quên mật khẩu?</Text>
+              </TouchableOpacity>
             </View>
 
             <TouchableOpacity
@@ -170,6 +253,78 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     fontSize: 16,
     color: colors.text,
+  },
+  inputError: {
+    borderColor: '#EF4444',
+    borderWidth: 2,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 12,
+    marginTop: spacing.xs,
+    marginLeft: spacing.xs,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  passwordInput: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    fontSize: 16,
+    color: colors.text,
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: spacing.md,
+    padding: spacing.xs,
+  },
+  eyeIconText: {
+    fontSize: 20,
+  },
+  rememberContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: spacing.sm,
+  },
+  rememberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderRadius: 4,
+    marginRight: spacing.xs,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  checkmark: {
+    color: colors.surface,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  rememberText: {
+    fontSize: 14,
+    color: colors.text,
+  },
+  forgotText: {
+    fontSize: 14,
+    color: colors.primary,
+    fontWeight: '600',
   },
   button: {
     backgroundColor: colors.primary,
