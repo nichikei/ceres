@@ -1,200 +1,176 @@
-// src/components/MealCard.tsx
 import React from 'react';
-import { View, Text, StyleSheet, Image, ImageSourcePropType } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius } from '../context/ThemeContext';
-
-interface MealItem {
-  id: string;
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  time: string;
-  status: 'Breakfast' | 'Lunch' | 'Snack' | 'Dinner';
-  image?: string;
-}
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
 
 interface MealCardProps {
-  meal: MealItem;
+  mealType: string;
+  foodName: string;
+  calories: number;
+  protein: number;
+  carbs?: number;
+  fat?: number;
+  onPress?: () => void;
 }
 
-const MEAL_ICONS: Record<string, string> = {
-  Breakfast: 'BF',
-  Lunch: 'LU',
-  Snack: 'SN',
-  Dinner: 'DN',
-};
+const MealCard: React.FC<MealCardProps> = ({ 
+  mealType, 
+  foodName, 
+  calories, 
+  protein,
+  carbs,
+  fat,
+  onPress 
+}) => {
+  const { currentTheme } = useTheme();
 
-const MEAL_LABELS: Record<string, string> = {
-  Breakfast: 'Bua sang',
-  Lunch: 'Bua trua',
-  Snack: 'Bua phu',
-  Dinner: 'Bua toi',
-};
+  const getMealIcon = () => {
+    const type = mealType.toLowerCase();
+    if (type.includes('breakfast')) return 'sunny';
+    if (type.includes('lunch')) return 'restaurant';
+    if (type.includes('dinner')) return 'moon';
+    if (type.includes('snack')) return 'nutrition';
+    return 'fast-food';
+  };
 
-const FALLBACK_IMAGE: ImageSourcePropType = { uri: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800' };
-
-export const MealCard: React.FC<MealCardProps> = ({ meal }) => {
-  const source = meal.image ? { uri: meal.image } : FALLBACK_IMAGE;
+  const getMealColor = () => {
+    const type = mealType.toLowerCase();
+    if (type.includes('breakfast')) return ['#FFA726', '#FB8C00'];
+    if (type.includes('lunch')) return ['#42A5F5', '#1E88E5'];
+    if (type.includes('dinner')) return ['#AB47BC', '#8E24AA'];
+    if (type.includes('snack')) return ['#66BB6A', '#43A047'];
+    return [currentTheme.primary, currentTheme.secondary];
+  };
 
   return (
-    <View style={styles.card}>
-      <Image source={source} style={styles.bgImage} />
-      <LinearGradient
-        colors={['rgba(0,0,0,0.05)', 'rgba(0,0,0,0.65)']}
-        style={StyleSheet.absoluteFill}
-      />
-
-      <View style={styles.topRow}>
-        <View style={[styles.badge, { backgroundColor: MEAL_COLORS[meal.status] }]}>
-          <Text style={styles.badgeIcon}>{MEAL_ICONS[meal.status]}</Text>
-          <Text style={styles.badgeText}>{MEAL_LABELS[meal.status]}</Text>
-        </View>
-        <View style={styles.timePill}>
-          <Text style={styles.timeText}>{meal.time}</Text>
-        </View>
-      </View>
+    <TouchableOpacity
+      style={[styles.card, { backgroundColor: currentTheme.cardBackground }]}
+      onPress={onPress}
+      activeOpacity={0.8}
+    >
+      <LinearGradient colors={getMealColor()} style={styles.iconContainer}>
+        <Ionicons name={getMealIcon() as any} size={24} color="#FFF" />
+      </LinearGradient>
 
       <View style={styles.content}>
-        <Text style={styles.name} numberOfLines={2} ellipsizeMode="tail">
-          {meal.name}
+        <Text style={[styles.mealType, { color: currentTheme.primary }]}>
+          {mealType}
+        </Text>
+        <Text style={[styles.foodName, { color: currentTheme.text }]} numberOfLines={2}>
+          {foodName}
         </Text>
 
-        <View style={styles.metaRow}>
-          <View style={styles.caloriePill}>
-            <Text style={styles.calorieValue}>{meal.calories.toLocaleString()}</Text>
-            <Text style={styles.calorieUnit}>kcal</Text>
+        <View style={styles.nutritionRow}>
+          <View style={styles.nutritionItem}>
+            <Ionicons name="flame" size={16} color="#FF6B6B" />
+            <Text style={[styles.nutritionValue, { color: currentTheme.text }]}>
+              {calories}
+            </Text>
+            <Text style={[styles.nutritionLabel, { color: currentTheme.textSecondary }]}>
+              cal
+            </Text>
           </View>
 
-          <View style={styles.macros}>
-            <Text style={[styles.macroText, { color: colors.protein }]}>P {meal.protein}g</Text>
-            <Text style={styles.macroDivider}>•</Text>
-            <Text style={[styles.macroText, { color: colors.carbs }]}>C {meal.carbs}g</Text>
-            <Text style={styles.macroDivider}>•</Text>
-            <Text style={[styles.macroText, { color: colors.fat }]}>F {meal.fat}g</Text>
+          <View style={styles.separator} />
+
+          <View style={styles.nutritionItem}>
+            <Text style={[styles.nutritionValue, { color: currentTheme.text }]}>
+              {protein}g
+            </Text>
+            <Text style={[styles.nutritionLabel, { color: currentTheme.textSecondary }]}>
+              protein
+            </Text>
           </View>
+
+          {carbs !== undefined && (
+            <>
+              <View style={styles.separator} />
+              <View style={styles.nutritionItem}>
+                <Text style={[styles.nutritionValue, { color: currentTheme.text }]}>
+                  {carbs}g
+                </Text>
+                <Text style={[styles.nutritionLabel, { color: currentTheme.textSecondary }]}>
+                  carbs
+                </Text>
+              </View>
+            </>
+          )}
+
+          {fat !== undefined && (
+            <>
+              <View style={styles.separator} />
+              <View style={styles.nutritionItem}>
+                <Text style={[styles.nutritionValue, { color: currentTheme.text }]}>
+                  {fat}g
+                </Text>
+                <Text style={[styles.nutritionLabel, { color: currentTheme.textSecondary }]}>
+                  fat
+                </Text>
+              </View>
+            </>
+          )}
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
-};
-
-const MEAL_COLORS: Record<string, string> = {
-  Breakfast: 'rgba(255, 255, 255, 0.92)',
-  Lunch: 'rgba(255, 255, 255, 0.9)',
-  Snack: 'rgba(255, 255, 255, 0.9)',
-  Dinner: 'rgba(255, 255, 255, 0.9)',
 };
 
 const styles = StyleSheet.create({
   card: {
-    height: 150,
-    borderRadius: borderRadius.xl,
-    overflow: 'hidden',
-    marginBottom: spacing.md,
-    backgroundColor: colors.surface,
-  },
-  bgImage: {
-    ...StyleSheet.absoluteFillObject,
-    width: '100%',
-    height: '100%',
-  },
-  topRow: {
-    position: 'absolute',
-    top: spacing.sm,
-    left: spacing.sm,
-    right: spacing.sm,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: spacing.sm,
-  },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-    borderRadius: borderRadius.full,
-  },
-  badgeIcon: {
-    fontSize: 12,
-    fontWeight: '800',
-    marginRight: 6,
-    color: colors.text,
-  },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  timePill: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-    borderRadius: borderRadius.full,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-  },
-  timeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#fff',
+    marginRight: 12,
   },
   content: {
-    position: 'absolute',
-    left: spacing.sm,
-    right: spacing.sm,
-    bottom: spacing.sm,
-    gap: spacing.xs,
+    flex: 1,
   },
-  name: {
+  mealType: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  foodName: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#fff',
-    lineHeight: 22,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
-  metaRow: {
+  nutritionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
   },
-  caloriePill: {
+  nutritionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    gap: 4,
   },
-  calorieValue: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: colors.primary,
+  separator: {
+    width: 1,
+    height: 12,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    marginHorizontal: 8,
   },
-  calorieUnit: {
+  nutritionValue: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  nutritionLabel: {
     fontSize: 12,
-    fontWeight: '700',
-    color: colors.text,
-    marginLeft: 6,
-    textTransform: 'uppercase',
-  },
-  macros: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  macroText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  macroDivider: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.7)',
   },
 });
+
+export default MealCard;

@@ -1,172 +1,85 @@
-// src/components/NutritionChart.tsx
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
-import { colors, spacing, borderRadius } from '../context/ThemeContext';
+import { View, Text, StyleSheet } from 'react-native';
+import { PieChart } from 'react-native-chart-kit';
+import { useTheme } from '../context/ThemeContext';
+import { Dimensions } from 'react-native';
+
+const screenWidth = Dimensions.get('window').width;
 
 interface NutritionChartProps {
   protein: number;
   carbs: number;
   fat: number;
-  calories: number;
-  tdee: number;
 }
 
-export const NutritionChart: React.FC<NutritionChartProps> = ({
-  protein,
-  carbs,
-  fat,
-  calories,
-  tdee,
-}) => {
-  const macroCalories = {
-    protein: protein * 4,
-    carbs: carbs * 4,
-    fat: fat * 9,
-  };
-  const totalEatenCalories = macroCalories.protein + macroCalories.carbs + macroCalories.fat;
+const NutritionChart: React.FC<NutritionChartProps> = ({ protein, carbs, fat }) => {
+  const { currentTheme } = useTheme();
 
-  const proteinPct = totalEatenCalories ? (macroCalories.protein / totalEatenCalories) * 100 : 0;
-  const carbsPct = totalEatenCalories ? (macroCalories.carbs / totalEatenCalories) * 100 : 0;
-  const fatPct = totalEatenCalories ? (macroCalories.fat / totalEatenCalories) * 100 : 0;
+  const total = protein + carbs + fat;
+  
+  if (total === 0) return null;
+  
+  const proteinPct = Math.round((protein / total) * 100);
+  const carbsPct = Math.round((carbs / total) * 100);
+  const fatPct = Math.round((fat / total) * 100);
 
-  const size = 140;
-  const strokeWidth = 20;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
+  const data = [
+    {
+      name: `Protein ${proteinPct}%`,
+      value: protein,
+      color: '#FF6384',
+      legendFontColor: currentTheme.text,
+      legendFontSize: 12,
+    },
+    {
+      name: `Carbs ${carbsPct}%`,
+      value: carbs,
+      color: '#36A2EB',
+      legendFontColor: currentTheme.text,
+      legendFontSize: 12,
+    },
+    {
+      name: `Fat ${fatPct}%`,
+      value: fat,
+      color: '#FFCE56',
+      legendFontColor: currentTheme.text,
+      legendFontSize: 12,
+    },
+  ];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.chartContainer}>
-        <Svg width={size} height={size}>
-          {/* Background circle */}
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke={colors.border}
-            strokeWidth={strokeWidth}
-            fill="none"
-          />
-          {/* Fat */}
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke={colors.fat}
-            strokeWidth={strokeWidth}
-            fill="none"
-            strokeDasharray={`${(fatPct / 100) * circumference} ${circumference}`}
-            strokeDashoffset={0}
-            rotation={-90}
-            origin={`${size / 2}, ${size / 2}`}
-          />
-          {/* Carbs */}
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke={colors.carbs}
-            strokeWidth={strokeWidth}
-            fill="none"
-            strokeDasharray={`${(carbsPct / 100) * circumference} ${circumference}`}
-            strokeDashoffset={-(fatPct / 100) * circumference}
-            rotation={-90}
-            origin={`${size / 2}, ${size / 2}`}
-          />
-          {/* Protein */}
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke={colors.protein}
-            strokeWidth={strokeWidth}
-            fill="none"
-            strokeDasharray={`${(proteinPct / 100) * circumference} ${circumference}`}
-            strokeDashoffset={-((fatPct + carbsPct) / 100) * circumference}
-            rotation={-90}
-            origin={`${size / 2}, ${size / 2}`}
-          />
-        </Svg>
-        <View style={styles.centerText}>
-          <Text style={styles.caloriesValue}>{calories}</Text>
-          <Text style={styles.caloriesLabel}>kcal</Text>
-        </View>
-      </View>
-
-      <View style={styles.legend}>
-        <MacroItem label="Protein" value={Math.round(protein)} color={colors.protein} />
-        <MacroItem label="Carbs" value={Math.round(carbs)} color={colors.carbs} />
-        <MacroItem label="Fat" value={Math.round(fat)} color={colors.fat} />
-      </View>
+    <View style={[styles.container, { backgroundColor: currentTheme.cardBackground }]}>
+      <Text style={[styles.title, { color: currentTheme.text }]}>Nutrition Breakdown</Text>
+      <PieChart
+        data={data}
+        width={screenWidth - 40}
+        height={200}
+        chartConfig={{
+          backgroundColor: currentTheme.cardBackground,
+          backgroundGradientFrom: currentTheme.cardBackground,
+          backgroundGradientTo: currentTheme.cardBackground,
+          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+        }}
+        accessor="value"
+        backgroundColor="transparent"
+        paddingLeft="15"
+        absolute
+      />
     </View>
   );
 };
 
-interface MacroItemProps {
-  label: string;
-  value: number;
-  color: string;
-}
-
-const MacroItem: React.FC<MacroItemProps> = ({ label, value, color }) => (
-  <View style={styles.macroItem}>
-    <View style={[styles.macroIndicator, { backgroundColor: color }]} />
-    <View>
-      <Text style={styles.macroLabel}>{label}</Text>
-      <Text style={styles.macroValue}>{value}g</Text>
-    </View>
-  </View>
-);
-
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
+    borderRadius: 16,
+    padding: 16,
+    marginVertical: 12,
   },
-  chartContainer: {
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  centerText: {
-    position: 'absolute',
-    alignItems: 'center',
-  },
-  caloriesValue: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  caloriesLabel: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  legend: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-  },
-  macroItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  macroIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: spacing.sm,
-  },
-  macroLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  macroValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
   },
 });
+
+export default NutritionChart;

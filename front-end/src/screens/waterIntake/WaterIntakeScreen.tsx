@@ -1,463 +1,183 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Animated,
-} from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import ScreenBackground from '../../components/ScreenBackground';
+import { useTheme } from '../../context/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { colors, spacing, borderRadius } from '../../context/ThemeContext';
-import { useAuth } from '../../context/AuthContext';
+import { useFocusEffect } from '@react-navigation/native';
 
-const GLASS_SIZES = [
-  { id: '1', name: 'Nhỏ', amount: 150, icon: 'wine' },
-  { id: '2', name: 'Vừa', amount: 250, icon: 'water' },
-  { id: '3', name: 'Lớn', amount: 350, icon: 'beer' },
-];
+const WaterIntakeScreen = () => {
+  const { currentTheme } = useTheme();
+  const [waterIntake, setWaterIntake] = useState(0);
+  const [goal, setGoal] = useState(2000);
 
-export default function WaterIntakeScreen() {
-  const navigation = useNavigation();
-  const { user } = useAuth();
-  const [waterIntake, setWaterIntake] = useState(0); // ml
-  const [dailyGoal] = useState(2500); // ml
-  const [history, setHistory] = useState<{ time: string; amount: number }[]>([]);
+  useFocusEffect(
+    React.useCallback(() => {
+      loadWaterIntake();
+    }, [])
+  );
 
-  // Load data from AsyncStorage
-  useEffect(() => {
-    if (user?.user_id) {
-      loadWaterData();
-    }
-  }, [user?.user_id]);
-
-  const loadWaterData = async () => {
+  const loadWaterIntake = async () => {
     try {
-      if (!user?.user_id) return;
-      
-      const today = new Date().toDateString();
-      const dateKey = `waterDate_${user.user_id}`;
-      const intakeKey = `waterIntake_${user.user_id}`;
-      const historyKey = `waterHistory_${user.user_id}`;
-      
-      const savedDate = await AsyncStorage.getItem(dateKey);
-      
-      // Reset if it's a new day
-      if (savedDate !== today) {
-        await AsyncStorage.setItem(dateKey, today);
-        await AsyncStorage.setItem(intakeKey, '0');
-        await AsyncStorage.setItem(historyKey, '[]');
-        setWaterIntake(0);
-        setHistory([]);
-      } else {
-        const savedIntake = await AsyncStorage.getItem(intakeKey);
-        const savedHistory = await AsyncStorage.getItem(historyKey);
-        
-        if (savedIntake) setWaterIntake(parseInt(savedIntake));
-        if (savedHistory) setHistory(JSON.parse(savedHistory));
+      const data = await AsyncStorage.getItem('waterIntake');
+      if (data) {
+        const { amount, goal: savedGoal } = JSON.parse(data);
+        setWaterIntake(amount || 0);
+        setGoal(savedGoal || 2000);
       }
     } catch (error) {
-      console.error('Error loading water data:', error);
+      console.log('Load error');
     }
   };
 
-  const saveWaterData = async (intake: number, hist: { time: string; amount: number }[]) => {
+  const saveData = async (amount: number) => {
     try {
-      if (!user?.user_id) return;
-      
-      const intakeKey = `waterIntake_${user.user_id}`;
-      const historyKey = `waterHistory_${user.user_id}`;
-      
-      await AsyncStorage.setItem(intakeKey, intake.toString());
-      await AsyncStorage.setItem(historyKey, JSON.stringify(hist));
+      await AsyncStorage.setItem('waterIntake', JSON.stringify({ amount, goal }));
     } catch (error) {
-      console.error('Error saving water data:', error);
+      console.log('Save error');
     }
   };
-
-  const progress = Math.min((waterIntake / dailyGoal) * 100, 100);
-  const remaining = Math.max(dailyGoal - waterIntake, 0);
 
   const addWater = (amount: number) => {
-    const now = new Date();
-    const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    const newIntake = Math.min(waterIntake + amount, dailyGoal);
-    const newHistory = [{ time, amount }, ...history];
-    
-    setWaterIntake(newIntake);
-    setHistory(newHistory);
-    saveWaterData(newIntake, newHistory);
+    const newAmount = Math.min(waterIntake + amount, 5000);
+    setWaterIntake(newAmount);
+    saveData(newAmount);
   };
 
-  const removeLastIntake = () => {
-    if (history.length > 0) {
-      const lastIntake = history[0];
-      const newIntake = Math.max(waterIntake - lastIntake.amount, 0);
-      const newHistory = history.slice(1);
-      
-      setWaterIntake(newIntake);
-      setHistory(newHistory);
-      saveWaterData(newIntake, newHistory);
-    }
+  const resetWater = () => {
+    setWaterIntake(0);
+    saveData(0);
   };
+
+  const percentage = Math.min((waterIntake / goal) * 100, 100);
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
-      
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Nước uống</Text>
-        <View style={styles.headerRight} />
-      </View>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Water Progress Card */}
-        <View style={styles.progressCard}>
-          <View style={styles.waterGlassContainer}>
-            <View style={styles.waterGlass}>
-              <View style={[styles.waterFill, { height: `${progress}%` }]}>
-                <Animated.View style={styles.waterWave} />
-              </View>
-              <Ionicons 
-                name="water" 
-                size={60} 
-                color={progress >= 100 ? '#fff' : '#45B7D1'} 
-                style={styles.waterIcon}
-              />
-            </View>
+    <ScreenBackground>
+      <ScrollView style={styles.container}>
+        <Text style={[styles.title, { color: currentTheme.text }]}>Water Intake</Text>
+        
+        <View style={[styles.progressCard, { backgroundColor: currentTheme.cardBackground }]}>
+          <Text style={[styles.amountText, { color: currentTheme.primary }]}>
+            {waterIntake}ml
+          </Text>
+          <Text style={[styles.goalText, { color: currentTheme.textSecondary }]}>
+            Goal: {goal}ml
+          </Text>
+          
+          <View style={[styles.progressBar, { backgroundColor: currentTheme.border }]}>
+            <View 
+              style={[
+                styles.progressFill, 
+                { width: `${percentage}%`, backgroundColor: currentTheme.primary }
+              ]} 
+            />
           </View>
-
-          <View style={styles.progressStats}>
-            <Text style={styles.progressAmount}>{waterIntake}ml</Text>
-            <Text style={styles.progressGoal}>/ {dailyGoal}ml</Text>
-            <Text style={styles.progressPercent}>{progress.toFixed(0)}%</Text>
-            
-            {progress >= 100 ? (
-              <View style={styles.congratsBox}>
-                <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                <Text style={styles.congratsText}>Đã đạt mục tiêu! 🎉</Text>
-              </View>
-            ) : (
-              <Text style={styles.remainingText}>
-                Còn {remaining}ml để đạt mục tiêu
-              </Text>
-            )}
-          </View>
-        </View>
-
-        {/* Quick Add Buttons */}
-        <View style={styles.quickAddSection}>
-          <Text style={styles.sectionTitle}>Thêm nhanh</Text>
-          <View style={styles.glassButtons}>
-            {GLASS_SIZES.map((glass) => (
-              <TouchableOpacity
-                key={glass.id}
-                style={styles.glassButton}
-                onPress={() => addWater(glass.amount)}
-                activeOpacity={0.7}
-              >
-                <Ionicons name={glass.icon as any} size={32} color={colors.primary} />
-                <Text style={styles.glassName}>{glass.name}</Text>
-                <Text style={styles.glassAmount}>{glass.amount}ml</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* History */}
-        <View style={styles.historySection}>
-          <View style={styles.historyHeader}>
-            <Text style={styles.sectionTitle}>Lịch sử hôm nay</Text>
-            {history.length > 0 && (
-              <TouchableOpacity onPress={removeLastIntake} style={styles.undoButton}>
-                <Ionicons name="arrow-undo" size={18} color={colors.error} />
-                <Text style={styles.undoText}>Hoàn tác</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {history.length === 0 ? (
-            <View style={styles.emptyHistory}>
-              <Ionicons name="water-outline" size={48} color={colors.textSecondary} />
-              <Text style={styles.emptyText}>Chưa có lịch sử uống nước</Text>
-            </View>
-          ) : (
-            history.map((entry, index) => (
-              <View key={index} style={styles.historyItem}>
-                <View style={styles.historyIcon}>
-                  <Ionicons name="water" size={20} color={colors.primary} />
-                </View>
-                <View style={styles.historyContent}>
-                  <Text style={styles.historyAmount}>{entry.amount}ml</Text>
-                  <Text style={styles.historyTime}>{entry.time}</Text>
-                </View>
-                <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-              </View>
-            ))
-          )}
-        </View>
-
-        {/* Tips */}
-        <View style={styles.tipsCard}>
-          <View style={styles.tipsHeader}>
-            <Ionicons name="bulb" size={20} color="#FFA726" />
-            <Text style={styles.tipsTitle}>Mẹo nhỏ</Text>
-          </View>
-          <Text style={styles.tipsText}>
-            • Uống 1 cốc nước ngay khi thức dậy{'\n'}
-            • Uống nước trước mỗi bữa ăn 30 phút{'\n'}
-            • Mang theo bình nước bên mình{'\n'}
-            • Uống nhiều hơn khi tập luyện
+          
+          <Text style={[styles.percentageText, { color: currentTheme.text }]}>
+            {percentage.toFixed(0)}% of daily goal
           </Text>
         </View>
+
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity 
+            style={[styles.addButton, { backgroundColor: currentTheme.primary }]}
+            onPress={() => addWater(250)}
+          >
+            <Ionicons name="water" size={24} color="#FFF" />
+            <Text style={styles.buttonText}>+250ml</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.addButton, { backgroundColor: currentTheme.primary }]}
+            onPress={() => addWater(500)}
+          >
+            <Ionicons name="water" size={24} color="#FFF" />
+            <Text style={styles.buttonText}>+500ml</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity 
+          style={[styles.resetButton, { borderColor: currentTheme.border }]}
+          onPress={resetWater}
+        >
+          <Ionicons name="refresh" size={20} color={currentTheme.text} />
+          <Text style={[styles.resetText, { color: currentTheme.text }]}>Reset</Text>
+        </TouchableOpacity>
       </ScrollView>
-    </View>
+    </ScreenBackground>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    padding: 20,
   },
-  header: {
-    backgroundColor: colors.primary,
-    paddingTop: 50,
-    paddingBottom: spacing.md,
-    paddingHorizontal: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: -8,
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
-    textAlign: 'center',
-  },
-  headerRight: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-    padding: spacing.md,
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 24,
   },
   progressCard: {
-    backgroundColor: '#fff',
-    borderRadius: borderRadius.xl,
-    padding: spacing.xl,
-    marginBottom: spacing.lg,
+    borderRadius: 16,
+    padding: 24,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    marginBottom: 24,
   },
-  waterGlassContainer: {
-    marginBottom: spacing.lg,
+  amountText: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
-  waterGlass: {
-    width: 120,
-    height: 180,
-    borderWidth: 4,
-    borderColor: '#45B7D1',
-    borderRadius: 20,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    overflow: 'hidden',
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
+  goalText: {
+    fontSize: 16,
+    marginBottom: 20,
   },
-  waterFill: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#45B7D1',
-  },
-  waterWave: {
+  progressBar: {
     width: '100%',
-    height: 10,
-    backgroundColor: '#3A9FB8',
-    opacity: 0.5,
+    height: 12,
+    borderRadius: 6,
+    marginBottom: 12,
   },
-  waterIcon: {
-    zIndex: 1,
+  progressFill: {
+    height: '100%',
+    borderRadius: 6,
   },
-  progressStats: {
-    alignItems: 'center',
-  },
-  progressAmount: {
-    fontSize: 36,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  progressGoal: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
-  },
-  progressPercent: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.primary,
-    marginBottom: spacing.sm,
-  },
-  remainingText: {
+  percentageText: {
     fontSize: 14,
-    color: colors.textSecondary,
   },
-  congratsBox: {
+  buttonsContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: '#E8F5E9',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.full,
+    gap: 12,
+    marginBottom: 12,
   },
-  congratsText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#4CAF50',
-  },
-  quickAddSection: {
-    marginBottom: spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.md,
-  },
-  glassButtons: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  glassButton: {
+  addButton: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: spacing.lg,
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  glassName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    marginTop: spacing.sm,
-  },
-  glassAmount: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  historySection: {
-    marginBottom: spacing.lg,
-  },
-  historyHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  undoButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-  },
-  undoText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.error,
-  },
-  emptyHistory: {
-    backgroundColor: '#fff',
-    padding: spacing.xl,
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginTop: spacing.sm,
-  },
-  historyItem: {
-    backgroundColor: '#fff',
-    padding: spacing.md,
-    borderRadius: borderRadius.lg,
-    marginBottom: spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  historyIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.primary + '20',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.md,
+    padding: 16,
+    borderRadius: 12,
+    gap: 8,
   },
-  historyContent: {
-    flex: 1,
-  },
-  historyAmount: {
+  buttonText: {
+    color: '#FFF',
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
   },
-  historyTime: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  tipsCard: {
-    backgroundColor: '#FFF3E0',
-    padding: spacing.lg,
-    borderRadius: borderRadius.lg,
-    marginBottom: spacing.xl,
-  },
-  tipsHeader: {
+  resetButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.sm,
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
   },
-  tipsTitle: {
+  resetText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#F57C00',
-  },
-  tipsText: {
-    fontSize: 14,
-    color: '#E65100',
-    lineHeight: 22,
   },
 });
+
+export default WaterIntakeScreen;
